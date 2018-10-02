@@ -1,0 +1,3 @@
+Project_1_W18_27017.pdf
+/__pycache__
+/__pycache__/*
