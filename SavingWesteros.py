@@ -66,10 +66,10 @@ class SaveWesteros(GeneralSearchProblem):
         #implemented by Marwan & Youssef      
         result=[]
         
-        if state.POS_ROW < len(state.Grid)-1:
+        if state.POS_ROW < len(state.GRID)-1:
             result.append("Down")
             
-        if state.POS_COLUMN < len(state.Grid[0])-1:
+        if state.POS_COLUMN < len(state.GRID[0])-1:
             result.append("Right")   
             
         if state.POS_COLUMN > 0:
@@ -78,7 +78,7 @@ class SaveWesteros(GeneralSearchProblem):
         if state.POS_ROW > 0:
             result.append("Up")
             
-        if self.jonInDanger():
+        if self.jonInDanger(state):
             result.append("Attack")
             
         return result

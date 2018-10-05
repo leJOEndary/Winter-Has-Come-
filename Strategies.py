@@ -39,7 +39,7 @@ class DepthFirst(SearchStrategy):
         new_state = old_node.STATE.get_new_state(next_action)
               
         parent = old_node
-        if not new_state.alive:
+        if not new_state.ALIVE:
             while parent.ACTION == "Attack":
                 parent = parent.PARENT
         else:
@@ -52,7 +52,8 @@ class DepthFirst(SearchStrategy):
     
     # Calls create_node() continously until it reachs a goal node/state, then it returns the winning sequence.
     def form_plan(self):
-        pass   
+        self.create_node()
+        return "Dummy"
     # To be discussed
     
   

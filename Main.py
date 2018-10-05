@@ -45,16 +45,11 @@ def search(grid, strategy, visualize):
     
     strategy = DepthFirst(world)
     winning_sequence = strategy.form_plan()
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+
+    # Visualize the winning plan
+    print(winning_sequence)
+ 
     return ["Representation of the sequence of moves to the goal",
             "Cost of the solution",
             "Number of nodes expanded during search"]
@@ -68,4 +63,4 @@ def visualize():
 
 
 
-#search(TEST_GRID, 1, False)
+search(TEST_GRID, 1, False)
