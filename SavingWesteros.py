@@ -7,47 +7,18 @@ Created on Mon Oct  1 15:32:40 2018
 from SearchProblem import GeneralSearchProblem
 from Node import Node
 
-###############################################################################
-# We will represent the grid using a 2d array of numbers from: {0,1,2}
-# 0 = Empty Cell
-# 1 = White Walker Cell
-# 2 = The DragonStone Castle
-###############################
-TEST_GRID = [[1,0,1,0],
-             [0,1,0,0],
-             [1,0,1,2],
-             [0,0,0,0]]
 
-
-
-# Generates a random grid of size MxN (min, 4x4)
-def genGrid(length, width):
-    # To be implemented, by ...
-    return TEST_GRID
-
-
-
-# Searches for a possible winning plan
-def Search(grid, strategy, visualize):
-    # To be implemented
-    return ["Representation of the sequence of moves to the goal",
-            "Cost of the solution",
-            "Number of nodes expanded during search"]
  
     
-    
-# Visual representation of discovered solution applied to the grid 
-def visualize():
-    # To be implemented, by ...
-    pass
-
-
-
 
     
-class SaveWesteros(GeneralSearchProblem):
-    
+class SaveWesteros(GeneralSearchProblem):    
 
+    def __init__(self, initial_state):
+        self.INITIAL_STATE =  initial_state
+        
+        
+    
     # This function is used by the agent to test if a Goal State is reached
     def goal_test(self):     
         # To be implemented, by ...
@@ -58,7 +29,7 @@ class SaveWesteros(GeneralSearchProblem):
     # The initial state of our problem
     def initial_state(self):
         # To be implemented, by ...
-        return None
+        return self.INITIAL_STATE
         
     
 
@@ -67,6 +38,12 @@ class SaveWesteros(GeneralSearchProblem):
     # in the sequence.
     def path_cost(self, sequence):    
         # To be implemented, by ...
+        cost_default =  {"Initial":0,
+                         "Up":1,
+                         "Down":1,
+                         "Right":1,
+                         "Left":1,
+                         "Kill":10}
         return None
 
     
@@ -81,13 +58,58 @@ class SaveWesteros(GeneralSearchProblem):
 
     
 
-    # The set of possible actions available to the agent
-    def operators(self):  
-        return ["Up",
-                "Down",
-                "Right",
-                "Left",
-                "Attack"]
+    # The set of possible actions available to the agent, in the current state
+    def operators(self, state): 
+        #implemented by Marwan & Youssef      
+        result=[]
+        
+        if state.POS_ROW < len(state.Grid)-1:
+            result.append("Down")
+            
+        if state.POS_COLUMN < len(state.Grid[0])-1:
+            result.append("Right")   
+            
+        if state.POS_COLUMN > 0:
+            result.append("Left")
+            
+        if state.POS_ROW > 0:
+            result.append("Up")
+            
+        if self.jonInDanger():
+            result.append("Attack")
+            
+  
+        return result
  
     
+    # Returns true if there's an adjacent WhiteWalker (Represented by 1 in the grid)
+    def jonInDanger(self, state):
+        
+        row = state.POS_ROW
+        column = state.POS_COLUMN
+        grid = state.GRID
+    
+        # Checking for danger down
+        if row < len(grid)-1:
+            if grid[row+1][column] == 1:
+                return True
+            
+        # Checking for danger right
+        if column < len(grid[0])-1:
+            if grid[row][column+1] == 1:
+                return True
+            
+        # Checking for danger up
+        if row > 0:
+            if grid[row-1][column] == 1:
+                return True
+            
+        # Checking for danger left
+        if column > 0:
+            if grid[row][column-1] == 1:
+                return True
+                   
+        
+        return False
 
+    

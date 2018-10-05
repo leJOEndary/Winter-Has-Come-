@@ -5,7 +5,7 @@ Created on Mon Oct  1 15:26:16 2018
 @author: Youssef
 """
 import abc
-
+    
 
 class GeneralSearchProblem(abc.ABC):
     
@@ -34,5 +34,4 @@ class GeneralSearchProblem(abc.ABC):
     # in the sequence.
     @abc.abstractmethod
     def path_cost(self):
-        pass
-      
+        pass      
