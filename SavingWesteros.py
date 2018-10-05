@@ -38,6 +38,9 @@ class SaveWesteros(GeneralSearchProblem):
     # in the sequence.
     def path_cost(self, sequence):    
         # To be implemented, by ...
+        
+        # These are the default costs for each action
+        # In case of killing, cost should vary depending on the number of adjacent white walkers.
         cost_default =  {"Initial":0,
                          "Up":1,
                          "Down":1,
@@ -78,13 +81,14 @@ class SaveWesteros(GeneralSearchProblem):
         if self.jonInDanger():
             result.append("Attack")
             
-  
         return result
  
     
+    
+    
     # Returns true if there's an adjacent WhiteWalker (Represented by 1 in the grid)
     def jonInDanger(self, state):
-        
+        #implemented by Marwan & Youssef  
         row = state.POS_ROW
         column = state.POS_COLUMN
         grid = state.GRID
@@ -108,8 +112,7 @@ class SaveWesteros(GeneralSearchProblem):
         if column > 0:
             if grid[row][column-1] == 1:
                 return True
-                   
-        
+                         
         return False
 
     

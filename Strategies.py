@@ -20,39 +20,42 @@ class SearchStrategy(abc.ABC):
 # Implemented by Marwan and Youssef
 class DepthFirst(SearchStrategy):
     
+    
     def __init__(self, world):
         self.WORLD = world
-        
         root = Node("Initial", None, 0, world.INITIAL_STATE)
         self.ROOT = root
-        self.CURRENT = root
-        
+        self.CURRENT = root        
         self.ACTION_STACK = world.operators(world.INITIAL_STATE)
         
     
     
-    def new_node(self):
+    # Computes the next node & state from the current ones
+    def create_node(self):
+        
+        # Action is determined from the action_stack
         next_action = self.ACTION_STACK.pop()
         old_node = self.CURRENT
         new_state = old_node.STATE.get_new_state(next_action)
-        
+              
         parent = old_node
         if not new_state.alive:
             while parent.ACTION == "Attack":
                 parent = parent.PARENT
         else:
             possible_operators = self.WORLD.operators(new_state)
-            self.ACTION_STACK.extend(possible_operators)
+            self.ACTION_STACK.extend(possible_operators) 
             
-        # Here we just computed the new current node
+        # update the new current node
         self.CURRENT = Node(next_action, parent, parent.DEPTH+1, new_state)
         
     
-    # Calls pop continuesly until it reachs a goal state, then it returns the winning sequence.
+    # Calls create_node() continously until it reachs a goal node/state, then it returns the winning sequence.
     def form_plan(self):
         pass   
     # To be discussed
     
+  
     
 # Queue
 class BreadthFirst(SearchStrategy):
@@ -62,6 +65,7 @@ class BreadthFirst(SearchStrategy):
     # To be discussed
     
 
+# Stack with increasing max size
 class IterativeDeepening(SearchStrategy):
     
     def get_next_move(self):
@@ -69,6 +73,7 @@ class IterativeDeepening(SearchStrategy):
     # To be discussed
     
 
+# ??
 class UniformCost(SearchStrategy):
     
     def get_next_move(self):
@@ -76,6 +81,7 @@ class UniformCost(SearchStrategy):
     # To be discussed
     
 
+# ??
 class Greedy(SearchStrategy):
     
     def heutistic_one(self):
@@ -89,6 +95,7 @@ class Greedy(SearchStrategy):
     # To be discussed
     
 
+# ??
 class AStar(SearchStrategy):
     
     def heuristic_one(self):

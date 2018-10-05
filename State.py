@@ -5,11 +5,11 @@ Created on Fri Oct  5 14:16:45 2018
 @author: Youssef
 """
 
-# Implemented by Marwan and Youssef
+# Implemented by Youssef
 class State():
         
-    def __init__(self, grid, row, column, inventory_max, inventory_curr, alive=True):
-       
+    # State Constructor
+    def __init__(self, grid, row, column, inventory_max, inventory_curr, alive=True):       
        self.GRID = grid
        self.POS_ROW = row
        self.POS_COLUMN = column
@@ -19,9 +19,10 @@ class State():
        
     
     
-       
+    # Computes next state from the current state and a given action.  
     def get_new_state(self, action):
         
+        # Removes neighbouring White Walkers
         def remove_white_walkers(grid, row, column):
             grid[row+1][column] = 0
             grid[row-1][column] = 0
@@ -29,6 +30,7 @@ class State():
             grid[row][column-1] = 0
             return grid
        
+        # Initializing the new state values as the current one
         row = self.POS_ROW
         column = self.POS_COLUMN
         inventory_max = self.INVENTORY_MAX
@@ -37,12 +39,12 @@ class State():
         alive = self.ALIVE
         
         
+        # Updating the grid & other state attributes 
         if action == "Attack":
             inventory_curr-=1
             grid = remove_white_walkers(grid, row, column)
-        
+ 
         else:
-        
             if action == "Right":
                 column += 1
             if action == "Left":

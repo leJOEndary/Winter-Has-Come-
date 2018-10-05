@@ -44,7 +44,7 @@ def search(grid, strategy, visualize):
     world = SaveWesteros(init_state)
     
     strategy = DepthFirst(world)
-    
+    winning_sequence = strategy.form_plan()
     
     
     
