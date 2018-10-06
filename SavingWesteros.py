@@ -7,7 +7,7 @@ Created on Mon Oct  1 15:32:40 2018
 from SearchProblem import GeneralSearchProblem
 from Node import Node
 
-
+from random import shuffle
  
     
 
@@ -20,10 +20,23 @@ class SaveWesteros(GeneralSearchProblem):
         
     
     # This function is used by the agent to test if a Goal State is reached
-    def goal_test(self):     
-        # To be implemented, by ...
-        return False
+    def goal_test(self, state):     
+        # To be implemented, by ..
+        grid = state.GRID
+        for row in grid:
+            for cell in row:
+                if cell == 1:
+                    return False 
+        return True
 
+    def parse_action_sequence(self, node):    
+        c = node
+        winning_sequence = []
+        while c.PARENT != None:
+            winning_sequence.append(c.ACTION)
+            c = c.PARENT  
+        winning_sequence.reverse()
+        return winning_sequence 
     
     
     # The initial state of our problem
@@ -36,19 +49,26 @@ class SaveWesteros(GeneralSearchProblem):
     # This function assigns cost to a sequence of actions. 
     # Typically, it is the sum of the costs of individual actions
     # in the sequence.
-    def path_cost(self, sequence):    
+    def path_cost(self, node):    
         # To be implemented, by ...
         
-        # These are the default costs for each action
-        # In case of killing, cost should vary depending on the number of adjacent white walkers.
-        cost_default =  {"Initial":0,
+        total_cost = 0
+        cost_dic =  {"Initial":0,
                          "Up":1,
                          "Down":1,
                          "Right":1,
                          "Left":1,
-                         "Kill":10}
-        return None
-
+                         "Attack":2}
+        
+        current = node
+        while current.PARENT != None:
+            total_cost += cost_dic[current.ACTION]  
+            current = current.PARENT
+        
+        # These are the default costs for each action
+        # In case of killing, cost should vary depending on the number of adjacent white walkers.
+        
+        return total_cost
     
     
     # The set of states reachable from the initial state by any sequence of actions.
@@ -62,25 +82,28 @@ class SaveWesteros(GeneralSearchProblem):
     
 
     # The set of possible actions available to the agent, in the current state
-    def operators(self, state): 
+    def operators(self, state, parent_id): 
         #implemented by Marwan & Youssef      
         result=[]
         
+        if self.jonInDanger(state) and state.INVENTORY_CURR > 0:
+            result.append(("Attack",parent_id))
+        
         if state.POS_ROW < len(state.GRID)-1:
-            result.append("Down")
+            result.append(("Down",parent_id))
             
         if state.POS_COLUMN < len(state.GRID[0])-1:
-            result.append("Right")   
+            result.append(("Right",parent_id))   
             
         if state.POS_COLUMN > 0:
-            result.append("Left")
+            result.append(("Left",parent_id))
             
         if state.POS_ROW > 0:
-            result.append("Up")
-            
-        if self.jonInDanger(state):
-            result.append("Attack")
-            
+            result.append(("Up",parent_id))
+        
+        # This will make the decisions of the dfs interesting (Less likely to be caught in infinite loops)
+        shuffle(result)
+
         return result
  
     

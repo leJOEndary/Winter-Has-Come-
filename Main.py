@@ -5,7 +5,7 @@ Created on Fri Oct  5 13:52:24 2018
 @author: Youssef
 """
 
-from Strategies import DepthFirst
+from Strategies import DepthFirst, BreadthFirst, UniformCost, IterativeDeepening, Greedy, AStar
 from SavingWesteros import SaveWesteros
 from State import State
 import random
@@ -18,11 +18,16 @@ import random
 # 2 = The DragonStone Castle
 ###############################
 TEST_GRID = [[1,0,1,0],
-             [0,1,0,0],
-             [1,0,1,2],
-             [0,0,0,0]]
+             [0,1,0,2],
+             [1,0,1,0],
+             [0,2,0,0]]
 
-
+strategies_dic = {"DF":DepthFirst,
+                      "BF":BreadthFirst,
+                      "ID":IterativeDeepening,
+                      "UC":UniformCost,
+                      "GD":Greedy,
+                      "AS":AStar} 
 
 # Generates a random grid of size MxN (min, 4x4)
 def genGrid(length, width):
@@ -31,29 +36,38 @@ def genGrid(length, width):
 
 
 
+
 # Searches for a possible winning plan
 def search(grid, strategy, visualize):
     # implemented by Marwan and Youssef
     
-    #
+    # Initializing the world using the Initial State
     inventory = random.randint(1,5)
-    row = len(grid)-1
-    column = len(grid[0])-1
+    row = len(grid)-1 
+    column = len(grid[0])-1  
+    init_state = State(grid, row, column, inventory_curr=inventory, inventory_max=inventory)   
+    world = SaveWesteros(init_state) 
     
-    init_state = State(grid, row, column, inventory_curr=inventory, inventory_max=inventory)
-    world = SaveWesteros(init_state)
+    # Initializing a strategy instance corresponding to given strategy
+    strategy_Object = strategies_dic[strategy](world)  
     
-    strategy = DepthFirst(world)
-    winning_sequence = strategy.form_plan()
+    # Computing the final node  
+    final_node = strategy_Object.form_plan()
 
+    # Parsing node to Actions and Cost
+    representation_of_moves_to_goal = world.parse_action_sequence(final_node)
+    solution_cost = world.path_cost(final_node) 
+    
 
     # Visualize the winning plan
-    print(winning_sequence)
+    #if visualize:
+    #   visualize(final_node)
+    #################### 
  
-    return ["Representation of the sequence of moves to the goal",
-            "Cost of the solution",
-            "Number of nodes expanded during search"]
-    
+    return [representation_of_moves_to_goal,
+            solution_cost,
+            final_node.ID]
+
     
     
 # Visual representation of discovered solution applied to the grid 
@@ -63,4 +77,5 @@ def visualize():
 
 
 
-search(TEST_GRID, 1, False)
+res = search(TEST_GRID, "DF", False)
+print(res)

@@ -24,10 +24,14 @@ class State():
         
         # Removes neighbouring White Walkers
         def remove_white_walkers(grid, row, column):
-            grid[row+1][column] = 0
-            grid[row-1][column] = 0
-            grid[row][column+1] = 0
-            grid[row][column-1] = 0
+            if row < len(grid)-1:
+                grid[row+1][column] = 0        
+            if row > 0:
+                grid[row-1][column] = 0        
+            if column < len(grid[0])-1:    
+                grid[row][column+1] = 0
+            if column > 0:
+                grid[row][column-1] = 0
             return grid
        
         # Initializing the new state values as the current one
@@ -36,15 +40,15 @@ class State():
         inventory_max = self.INVENTORY_MAX
         inventory_curr = self.INVENTORY_CURR
         grid = self.GRID
-        alive = self.ALIVE
-        
+        alive = True
         
         # Updating the grid & other state attributes 
         if action == "Attack":
             inventory_curr-=1
             grid = remove_white_walkers(grid, row, column)
- 
         else:
+            
+            # Updating Position
             if action == "Right":
                 column += 1
             if action == "Left":
@@ -54,6 +58,7 @@ class State():
             if action == "Down":
                 row += 1
             
+            # Checking & Updating if we step on DragonStone or WhiteWalker
             if grid[row][column] == 2:
                 inventory_curr == inventory_max
             if grid[row][column] == 1:
