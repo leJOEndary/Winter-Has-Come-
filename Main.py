@@ -17,10 +17,10 @@ import random
 # 1 = White Walker Cell
 # 2 = The DragonStone Castle
 ###############################
-TEST_GRID = [[1,0,1,0],
-             [0,0,0,2],
+TEST_GRID = [[0,0,0,0],
              [0,0,0,0],
-             [0,2,0,0]]
+             [0,0,0,1],
+             [0,0,0,0]]
 
 strategies_dic = {"DF":DepthFirst,
                   "BF":BreadthFirst,
