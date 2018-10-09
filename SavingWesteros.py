@@ -7,7 +7,7 @@ Created on Mon Oct  1 15:32:40 2018
 from SearchProblem import GeneralSearchProblem
 from Node import Node
 
-from random import shuffle
+
  
     
 
@@ -16,7 +16,12 @@ class SaveWesteros(GeneralSearchProblem):
 
     def __init__(self, initial_state):
         self.INITIAL_STATE =  initial_state
-        
+        self.COST_DIC = {"Initial":0,
+                         "Up":1,
+                         "Down":1,
+                         "Right":1,
+                         "Left":1,
+                         "Attack":2}
         
     
     # This function is used by the agent to test if a Goal State is reached
@@ -28,7 +33,8 @@ class SaveWesteros(GeneralSearchProblem):
                 if cell == 1:
                     return False 
         return True
-
+    
+    # Parses a node into a sequence of actions represented in an array of strings
     def parse_action_sequence(self, node):    
         c = node
         winning_sequence = []
@@ -50,23 +56,15 @@ class SaveWesteros(GeneralSearchProblem):
     # Typically, it is the sum of the costs of individual actions
     # in the sequence.
     def path_cost(self, node):    
-        # To be implemented, by ...
-        
+        # To be implemented, by Youssef
+        # These are the default costs for each action
+        # In case of killing, cost should vary depending on the number of adjacent white walkers.
         total_cost = 0
-        cost_dic =  {"Initial":0,
-                         "Up":1,
-                         "Down":1,
-                         "Right":1,
-                         "Left":1,
-                         "Attack":2}
         
         current = node
         while current.PARENT != None:
-            total_cost += cost_dic[current.ACTION]  
+            total_cost += self.COST_DIC[current.ACTION]  
             current = current.PARENT
-        
-        # These are the default costs for each action
-        # In case of killing, cost should vary depending on the number of adjacent white walkers.
         
         return total_cost
     
@@ -86,9 +84,6 @@ class SaveWesteros(GeneralSearchProblem):
         #implemented by Marwan & Youssef      
         result=[]
         
-        if self.jonInDanger(state) and state.INVENTORY_CURR > 0:
-            result.append(("Attack",parent_id))
-        
         if state.POS_ROW < len(state.GRID)-1:
             result.append(("Down",parent_id))
             
@@ -101,8 +96,8 @@ class SaveWesteros(GeneralSearchProblem):
         if state.POS_ROW > 0:
             result.append(("Up",parent_id))
         
-        # This will make the decisions of the dfs interesting (Less likely to be caught in infinite loops)
-        shuffle(result)
+        if self.jonInDanger(state) and state.INVENTORY_CURR > 0:
+            result.append(("Attack",parent_id))
 
         return result
  
