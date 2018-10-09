@@ -17,10 +17,10 @@ import random
 # 1 = White Walker Cell
 # 2 = The DragonStone Castle
 ###############################
-TEST_GRID = [[0,0,0,0],
-             [0,0,0,0],
-             [0,0,0,1],
-             [0,0,0,0]]
+TEST_GRID = [[0,1,0,1],
+             [1,0,1,0],
+             [0,1,0,1],
+             [2,0,1,0]]
 
 strategies_dic = {"DF":DepthFirst,
                   "BF":BreadthFirst,
@@ -42,7 +42,7 @@ def search(grid, strategy, visualize):
     # implemented by Marwan and Youssef
     
     # Initializing the world using the Initial State
-    inventory = random.randint(1,5)
+    inventory = 2#random.randint(1,5)
     row = len(grid)-1 
     column = len(grid[0])-1  
     init_state = State(grid, row, column, inventory_curr=inventory, inventory_max=inventory)   

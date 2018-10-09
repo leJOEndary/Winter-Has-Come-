@@ -9,7 +9,7 @@ from Node import Node
 from queue import Queue, PriorityQueue
 from random import shuffle
 from State import State
-from SavingWesteros import SaveWesteros
+
 
 class SearchStrategy(abc.ABC):    
     # returns the next move suggested for the agent, which is the node chosen for expansion
@@ -24,13 +24,14 @@ class SearchStrategy(abc.ABC):
 class DepthFirst(SearchStrategy):
     
     
-    def __init__(self, world, limit=None):
+    def __init__(self, world, limit=None, random=True):
         self.WORLD = world
         root = Node(-1,"Initial", None, 0, world.INITIAL_STATE)
         self.ROOT = root
         self.CURRENT = root        
         self.ACTION_STACK = world.operators(world.INITIAL_STATE, -1)
         self.LIMIT = limit
+        self.RANDOM = random
         
     
     
@@ -61,8 +62,10 @@ class DepthFirst(SearchStrategy):
 
         if new_state.ALIVE and limit_not_reached:
             possible_operators = self.WORLD.operators(new_state, ID)
-            # This will make the decisions of the dfs interesting (Less likely to be caught in infinite loops)
-            shuffle(possible_operators)
+            
+            # This will make the decisions of the dfs interestingly random (Less likely to be caught in infinite loops)
+            if self.RANDOM:
+                shuffle(possible_operators)
             self.ACTION_STACK.extend(possible_operators) 
             
         # update the new current node
@@ -107,11 +110,15 @@ class IterativeDeepening(SearchStrategy):
         self.reset_df(1)                        
     
     
+    
+    
     def reset_df(self, depth_limit):
         self.DF = DepthFirst(self.WORLD, depth_limit)
         self.DEPTH_STACK = []
         for e in self.DF.ACTION_STACK:
             self.DEPTH_STACK.append(1) 
+    
+    
     
     
     def create_node(self, ID, depth_limit):
@@ -131,6 +138,8 @@ class IterativeDeepening(SearchStrategy):
         else:
             self.DF.ACTION_STACK.pop()
         
+    
+    
     
     def form_plan(self):
         depth_limit = 1
@@ -187,28 +196,34 @@ class UniformCost(SearchStrategy):
     def create_node(self, ID):
         cost, data = self.ACTION_PRIO_QUEUE.get() # (cost, (action, parent_id))
         next_action, parentID = data
+        print(cost,data)
         
         # getting parent & computing the new_state
         parent = self.PARENTS[parentID]["node"]
         new_state = parent.STATE.get_new_state(next_action)
         
-        if new_state.ALIVE:
-            # Update the priority_Queue with the new node's children & costs
-            possible_operators = self.WORLD.operators(new_state, ID)
-            pq_entries = self.format_for_PQ(possible_operators, cost)
-            for e in pq_entries:
-                self.ACTION_PRIO_QUEUE.put(e)
-        
-        # To save memory, Decrement remaining_children & remove 
-        # parent from self.PARENTS if remaining_children is now 0. (We no more need it)
-        self.PARENTS[parentID]["remaining_children"]-=1
-        if self.PARENTS[parentID]["remaining_children"] == 0:
-            del self.PARENTS[parentID]
+        if parent.STATE.ALIVE:
+            possible_operators = []
+            if new_state.ALIVE:
+                # Update the priority_Queue with the new node's children & costs
+                possible_operators = self.WORLD.operators(new_state, ID)
+                pq_entries = self.format_for_PQ(possible_operators, cost) # format it to (cost, (action, parent_id))
+                for e in pq_entries:
+                    self.ACTION_PRIO_QUEUE.put(e)
+                    
+                
             
-        # Update the self.CURRENT & add it as a new parent
-        self.CURRENT = Node(ID, next_action, parent, parent.DEPTH+1, new_state)
-        self.PARENTS[ID] = {"node":self.CURRENT,
-                            "remaining_children":len(possible_operators)}
+            # To save memory, Decrement remaining_children & remove 
+            # parent from self.PARENTS when remaining_children reaches 0. (We no more need it)
+            self.PARENTS[parentID]["remaining_children"]-=1
+            if self.PARENTS[parentID]["remaining_children"] == 0:
+                del self.PARENTS[parentID]
+                
+            # Update the self.CURRENT & add it as a new parent
+            self.CURRENT = Node(ID, next_action, parent, parent.DEPTH+1, new_state)
+            if len(possible_operators)>0:
+                self.PARENTS[ID] = {"node":self.CURRENT,
+                                    "remaining_children":len(possible_operators)}
         
             
         
@@ -221,6 +236,7 @@ class UniformCost(SearchStrategy):
             self.create_node(node_id)
             current_state = self.CURRENT.STATE
             goal_reached = self.WORLD.goal_test(current_state) 
+            
         return self.CURRENT
     
 
@@ -230,7 +246,7 @@ class UniformCost(SearchStrategy):
         res = []
         for o in operators:
             action = o[0]
-            cost = self.WORLD.COST_DIC[action]
+            cost = self.WORLD.COST_DIC[action] + parent_cost
             res.append((cost,o))   
         return res
 ##################################################################################################
