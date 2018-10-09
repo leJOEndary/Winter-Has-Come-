@@ -18,16 +18,16 @@ import random
 # 2 = The DragonStone Castle
 ###############################
 TEST_GRID = [[1,0,1,0],
-             [0,1,0,2],
-             [1,0,1,0],
+             [0,0,0,2],
+             [0,0,0,0],
              [0,2,0,0]]
 
 strategies_dic = {"DF":DepthFirst,
-                      "BF":BreadthFirst,
-                      "ID":IterativeDeepening,
-                      "UC":UniformCost,
-                      "GD":Greedy,
-                      "AS":AStar} 
+                  "BF":BreadthFirst,
+                  "ID":IterativeDeepening,
+                  "UC":UniformCost,
+                  "GD":Greedy,
+                  "AS":AStar} 
 
 # Generates a random grid of size MxN (min, 4x4)
 def genGrid(length, width):
@@ -77,5 +77,5 @@ def visualize():
 
 
 
-res = search(TEST_GRID, "DF", False)
+res = search(TEST_GRID, "UC", False)
 print(res)
