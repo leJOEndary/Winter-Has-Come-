@@ -74,9 +74,9 @@ class State():
             
             # Updating Position
             if column < len(grid[0])-1: 
-                if action == "Right":
-                    
+                if action == "Right":       
                     column += 1
+                    
             if column > 0:
                 if action == "Left":
                     column -= 1
@@ -84,14 +84,15 @@ class State():
             if row > 0:
                 if action == "Up":
                     row -= 1
+                    
             if row < len(grid)-1:
                 if action == "Down":
                     row += 1
             
-            # Checking & Updating if we step on DragonStone or WhiteWalker
+            # Checking & Updating if we step on DragonStone or WhiteWalker or Obstacle
             if grid[row][column] == 2:
-                inventory_curr == inventory_max
-            if grid[row][column] == 1:
+                inventory_curr = inventory_max
+            if grid[row][column] in [1,3]:
                 alive = False
         
         

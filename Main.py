@@ -16,11 +16,13 @@ import random
 # 0 = Empty Cell
 # 1 = White Walker Cell
 # 2 = The DragonStone Castle
+# 3 = Obstacle
 ###############################
-TEST_GRID = [[0,1,0,1],
-             [1,0,1,0],
-             [0,1,0,1],
-             [2,0,1,0]]
+TEST_GRID = [[0,1,0,0,1],
+             [1,0,0,0,3],
+             [0,1,0,0,0],
+             [0,1,0,3,0],
+             [2,3,1,0,0]]
 
 strategies_dic = {"DF":DepthFirst,
                   "BF":BreadthFirst,
@@ -31,7 +33,6 @@ strategies_dic = {"DF":DepthFirst,
 
 # Generates a random grid of size MxN (min, 4x4)
 def genGrid(length, width):
-    # To be implemented, by ...
     return TEST_GRID
 
 
@@ -39,19 +40,23 @@ def genGrid(length, width):
 
 # Searches for a possible winning plan
 def search(grid, strategy, visualize):
-    # implemented by Marwan and Youssef
     
     # Initializing the world using the Initial State
-    inventory = 2#random.randint(1,5)
+    inventory = random.randint(1,5)
     row = len(grid)-1 
     column = len(grid[0])-1  
     init_state = State(grid, row, column, inventory_curr=inventory, inventory_max=inventory)   
     world = SaveWesteros(init_state) 
     
     # Initializing a strategy instance corresponding to given strategy
-    strategy_Object = strategies_dic[strategy](world)  
     
-    # Computing the final node  
+    print("Inventory size:", inventory)
+    try:
+        strategy_Object = strategies_dic[strategy[:2]](world, strategy[2])
+    except Exception as e:
+        strategy_Object = strategies_dic[strategy](world)
+    
+    # Computing the final node
     final_node = strategy_Object.form_plan()
 
     # Parsing node to Actions and Cost
@@ -72,10 +77,14 @@ def search(grid, strategy, visualize):
     
 # Visual representation of discovered solution applied to the grid 
 def visualize():
-    # To be implemented, by ...
     pass
 
 
 
-res = search(TEST_GRID, "UC", False)
+
+res = search(TEST_GRID, "AS", False)
 print(res)
+    
+
+
+

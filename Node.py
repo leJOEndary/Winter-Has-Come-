@@ -18,5 +18,5 @@ class Node():
         self.DEPTH = depth
         self.PARENT = parent
         self.ID = ID
-    
+          
     
