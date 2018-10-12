@@ -85,73 +85,66 @@ class DepthFirst(SearchStrategy):
 
 ##################################################################################################
 
-# Queue
-class BreadthFirst(SearchStrategy):
+    class BreadthFirst(SearchStrategy):
 
-    def __init__(self, world):
-        self.WORLD = world
-        root = Node(-1, "Initial", None, 0, world.INITIAL_STATE)
-        self.ROOT = root
-        self.CURRENT = root
-        self.ACTION_QUEUE= Queue()
-        possible_operators= world.operators(world.INITIAL_STATE, -1)
-        # All the nodes with unexplored children
-        self.PARENTS = {
-            -1: {
-                "node": root,
-                "remaining_children": len(possible_operators)
+        def __init__(self, world):
+            self.WORLD = world
+            root = Node(-1, "Initial", None, 0, world.INITIAL_STATE)
+            self.ROOT = root
+            self.CURRENT = root
+            self.ACTION_QUEUE = Queue()
+            possible_operators = world.operators(world.INITIAL_STATE, -1)
+            # All the nodes with unexplored children
+            self.PARENTS = {
+                -1: {
+                    "node": root,
+                    "remaining_children": len(possible_operators)
+                }
             }
-        }
 
-        #queuing possible operator(actions) of the intial state
-        for operator in possible_operators:
-          self.ACTION_QUEUE.put(operator)
+            # queuing possible operator(actions) of the intial state
+            for operator in possible_operators:
+                self.ACTION_QUEUE.put(operator)
 
+        def create_node(self, ID):
+            # DEQUEUE the next action
+            next_action, parent_id = self.ACTION_QUEUE.get()  # (next_action, parent_id)
 
+            parent = self.PARENTS[parent_id]["node"]
 
+            # Expand the state(node) and get the new list of possible operators of the next level
+            new_state = parent.STATE.get_new_state(next_action)
 
+            if new_state.ALIVE:
+                new_possible_operators_toQueue = self.WORLD.operators(new_state, ID)  # List of the form (action, id)
+                # Queue the new possible operators
+                for operator in new_possible_operators_toQueue:
+                    self.ACTION_QUEUE.put(operator)
 
-    def create_node(self,ID):
-        # DEQUEUE the next action
-        next_action, parent_id = self.ACTION_QUEUE.get() # (next_action, parent_id)
-        parent = self.PARENTS[parent_id]["node"]
-        #Expand the state(node) and get the new list of possible operators of the next level
-        new_state = self.CURRENT.STATE.get_new_state(next_action)
-        if new_state.ALIVE:
-          new_possible_operators_toQueue= self.WORLD.operators(new_state, ID)
-          # Queue the new possible operators
-          for operator in new_possible_operators_toQueue:
-              self.ACTION_QUEUE.put(operator)
+                # To save memory, Decrement remaining_children & remove
+                # parent from self.PARENTS when remaining_children reaches 0. (We no more need it)
+                self.PARENTS[parent_id]["remaining_children"] -= 1
+                if self.PARENTS[parent_id]["remaining_children"] == 0:
+                    del self.PARENTS[parent_id]
 
+                # Update the self.CURRENT & add it as a new parent
+                self.CURRENT = Node(ID, next_action, parent, parent.DEPTH + 1, new_state)
+                if len(new_possible_operators_toQueue) > 0:
+                    self.PARENTS[ID] = {"node": self.CURRENT,
+                                        "remaining_children": len(new_possible_operators_toQueue)}
 
+        def form_plan(self):
+            node_id = 0
+            goal_reached = False
+            while not goal_reached:
+                # print (self.ACTION_QUEUE.queue,self.CURRENT.ACTION, self.CURRENT.STATE.POS_ROW, self.CURRENT.STATE.POS_COLUMN)
+                self.create_node(node_id)
+                current_state = self.CURRENT.STATE
+                goal_reached = self.WORLD.goal_test(current_state)
+                node_id += 1
 
-
-          # To save memory, Decrement remaining_children & remove
-          # parent from self.PARENTS when remaining_children reaches 0. (We no more need it)
-          self.PARENTS[parent_id]["remaining_children"] -= 1
-          if self.PARENTS[parent_id]["remaining_children"] == 0:
-              del self.PARENTS[parent_id]
-
-          # Update the self.CURRENT & add it as a new parent
-          self.CURRENT = Node(ID, next_action, parent, parent.DEPTH + 1, new_state)
-          if len(new_possible_operators_toQueue) > 0:
-              self.PARENTS[ID] = {"node": self.CURRENT,
-                                  "remaining_children": len(new_possible_operators_toQueue)}
-
-
-
-    def form_plan(self):
-        node_id = 0
-        goal_reached = False
-        while not goal_reached:
-            node_id += 1
-            self.create_node(node_id)
-            current_state = self.CURRENT.STATE
-            print (self.CURRENT.ACTION)
-            goal_reached = self.WORLD.goal_test(current_state)
-
-        return self.CURRENT
-    # To be discussed
+            return self.CURRENT
+        # To be discussed
 
 ##################################################################################################
 

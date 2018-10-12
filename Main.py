@@ -19,9 +19,8 @@ import random
 # 3 = Obstacle
 ###############################
 TEST_GRID = [[0,0,0,0],
-             [1,0,0,0],
-             [0,0,0,0],
-             [2,0,0,0]]
+             [0,0,1,0],
+             [0,0,0,0]]
 
 strategies_dic = {"DF":DepthFirst,
                   "BF":BreadthFirst,
