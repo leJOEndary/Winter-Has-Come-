@@ -107,18 +107,15 @@ class BreadthFirst(SearchStrategy):
 
         #Expand the state(node) and get the new list of possible operators of the next level
         new_state = State.get_new_state(next_action)
-        new_possible_operators_toQueue= self.WORLD.operators(new_state, parent_id)
+        if not new_state.ALIVE:
+          new_possible_operators_toQueue= self.WORLD.operators(new_state, parent_id)
+          # Queue the new possible operators
+          for operator in new_possible_operators_toQueue:
+              self.ACTION__QUEUE.put(operator)
 
-        #Queue the new possible operators
-        for operator in new_possible_operators_toQueue:
-            self.ACTION__QUEUE.put(operator)
 
-        #Check if the current state is Not Alive
-        current_node = self.CURRENT
-        current_state = current_node.STATE
 
-        if not current_state.Alive:
-            
+
 
 
 
