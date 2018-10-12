@@ -116,28 +116,28 @@ class BreadthFirst(SearchStrategy):
         parent = self.PARENTS[parent_id]["node"]
         #Expand the state(node) and get the new list of possible operators of the next level
         new_state = State.get_new_state(next_action)
-        if new_state.ALIVE:
-          new_possible_operators_toQueue= self.WORLD.operators(new_state, parent_id)
-          # Queue the new possible operators
-          for operator in new_possible_operators_toQueue:
-              self.ACTION__QUEUE.put(operator)
+                if new_state.ALIVE:
+                  new_possible_operators_toQueue= self.WORLD.operators(new_state, parent_id)
+                  # Queue the new possible operators
+                  for operator in new_possible_operators_toQueue:
+                      self.ACTION__QUEUE.put(operator)
 
 
 
 
-          # To save memory, Decrement remaining_children & remove
-          # parent from self.PARENTS when remaining_children reaches 0. (We no more need it)
-          self.PARENTS[parent_id]["remaining_children"] -= 1
-          if self.PARENTS[parent_id]["remaining_children"] == 0:
-              del self.PARENTS[parent_id]
+                  # To save memory, Decrement remaining_children & remove
+                  # parent from self.PARENTS when remaining_children reaches 0. (We no more need it)
+                  self.PARENTS[parent_id]["remaining_children"] -= 1
+                  if self.PARENTS[parent_id]["remaining_children"] == 0:
+                      del self.PARENTS[parent_id]
 
-          # Update the self.CURRENT & add it as a new parent
+         # Update the self.CURRENT & add it as a new parent
           self.CURRENT = Node(ID, next_action, parent, parent.DEPTH + 1, new_state)
           if len(new_possible_operators_toQueue) > 0:
               self.PARENTS[ID] = {"node": self.CURRENT,
                                   "remaining_children": len(new_possible_operators_toQueue)}
 
-        self.CURRENT = Node(ID, next_action, parent, parent.DEPTH + 1, new_state)
+
 
     def form_plan(self):
         node_id = 0
