@@ -51,7 +51,7 @@ class DepthFirst(SearchStrategy):
             
         # This block is responsible for finding the parent of our next move by matching the ID
         # of the parent/grandparent, with the ID associated with the next action in the ACTION_Stack
-        if not old_state.ALIVE or not limit_not_reached: 
+        if not limit_not_reached: 
             parent = old_node 
             while parent.ID != parent_id:
                 parent = parent.PARENT
@@ -59,7 +59,7 @@ class DepthFirst(SearchStrategy):
         new_state = parent.STATE.get_new_state(next_action)
         
 
-        if new_state.ALIVE and limit_not_reached:
+        if limit_not_reached:
             possible_operators = self.WORLD.operators(new_state, ID)
             
             # This will make the decisions of the dfs interestingly random (Less likely to be caught in infinite loops)
@@ -204,26 +204,24 @@ class UniformCost(SearchStrategy):
         parent = self.PARENTS[parentID]["node"]
         new_state = parent.STATE.get_new_state(next_action)
         
-        if parent.STATE.ALIVE:
-            possible_operators = []
-            if new_state.ALIVE:
-                # Update the priority_Queue with the new node's children & costs
-                possible_operators = self.WORLD.operators(new_state, ID)
-                pq_entries = self.format_for_PQ(possible_operators, cost) # format it to (cost, (action, parent_id))
-                for e in pq_entries:
-                    self.ACTION_PRIO_QUEUE.put(e)
+        
+        # Update the priority_Queue with the new node's children & costs
+        possible_operators = self.WORLD.operators(new_state, ID)
+        pq_entries = self.format_for_PQ(possible_operators, cost) # format it to (cost, (action, parent_id))
+        for e in pq_entries:
+            self.ACTION_PRIO_QUEUE.put(e)
                     
-            # To save memory, Decrement remaining_children & remove 
-            # parent from self.PARENTS when remaining_children reaches 0. (We no more need it)
-            self.PARENTS[parentID]["remaining_children"]-=1
-            if self.PARENTS[parentID]["remaining_children"] == 0:
-                del self.PARENTS[parentID]
-                
-            # Update the self.CURRENT & add it as a new parent
-            self.CURRENT = Node(ID, next_action, parent, parent.DEPTH+1, new_state)
-            if len(possible_operators)>0:
-                self.PARENTS[ID] = {"node":self.CURRENT,
-                                    "remaining_children":len(possible_operators)}        
+        # To save memory, Decrement remaining_children & remove 
+        # parent from self.PARENTS when remaining_children reaches 0. (We no more need it)
+        self.PARENTS[parentID]["remaining_children"]-=1
+        if self.PARENTS[parentID]["remaining_children"] == 0:
+            del self.PARENTS[parentID]
+            
+        # Update the self.CURRENT & add it as a new parent
+        self.CURRENT = Node(ID, next_action, parent, parent.DEPTH+1, new_state)
+        if len(possible_operators)>0:
+            self.PARENTS[ID] = {"node":self.CURRENT,
+                                "remaining_children":len(possible_operators)}        
                 
         
         
@@ -281,18 +279,16 @@ class Greedy(SearchStrategy):
         # This block is responsible for finding the parent of our next move by matching the ID
         # of the parent/grandparent, with the ID associated with the next action in the ACTION_Stack
         parent = self.CURRENT
-        if not parent.STATE.ALIVE: 
-            while parent.ID != parentID:
-                parent = parent.PARENT
+        while parent.ID != parentID:
+            parent = parent.PARENT
                 
         current_state = parent.STATE   
         new_state=current_state.get_new_state(next_action)
         
-        if new_state.ALIVE:     
-            possible_operators = self.WORLD.operators(new_state, ID)
-#            print(new_state.POS_ROW, new_state.POS_COLUMN, possible_operators)
-            stack_entries = self.format_for_Stack(possible_operators,current_state)  
-            self.ACTION_STACK.extend(stack_entries)
+           
+        possible_operators = self.WORLD.operators(new_state, ID)
+        stack_entries = self.format_for_Stack(possible_operators,current_state)  
+        self.ACTION_STACK.extend(stack_entries)
                     
         self.CURRENT = Node(ID, next_action, parent, parent.DEPTH+1, new_state)
         
@@ -353,19 +349,13 @@ class Greedy(SearchStrategy):
     def form_plan(self):
         node_id = 0
         goal_reached = False
-        while not goal_reached:
-            
+        while not goal_reached:            
             self.create_node(node_id)
             current_state = self.CURRENT.STATE
             if self.CURRENT.ACTION == "Attack":  
                 goal_reached = self.WORLD.goal_test(current_state) 
-
             node_id+=1   
             
-            
-#            if node_id>1:
-#                break
-     
         return self.CURRENT
     
     
@@ -377,22 +367,18 @@ class Greedy(SearchStrategy):
     def format_for_Stack(self,possible_operators,state):
         new_operators=PriorityQueue()
         for operator in possible_operators :
-            action=operator[0]
-            
+            action=operator[0]       
             if self.H_MODE == "2":
                 h_value= self.heuristic_two(action,state) 
             else:
-                h_value= self.heuristic_one(action,state)
-            
+                h_value= self.heuristic_one(action,state)       
             new_operator=(h_value,operator)
             new_operators.put(new_operator)  
             
         result = []
         for o in new_operators.queue:
-            result.append(o[1])
-            
-        result.reverse()
-        
+            result.append(o[1])       
+        result.reverse()   
         return result
         
         
@@ -474,29 +460,27 @@ class AStar(SearchStrategy):
         parent_cost = self.PARENTS[parentID]["cost"]
         new_state = parent.STATE.get_new_state(next_action)
         
-        if parent.STATE.ALIVE:
-            possible_operators = []
-            if new_state.ALIVE:
+        
                 
-                # Update the priority_Queue with the new node's children & costs + heuristics
-                possible_operators = self.WORLD.operators(new_state, ID)
-                pq_entries = self.format_for_PQ(possible_operators, parent, parent_cost) # format it to (c+h, (action, parent_id))  
-                for e in pq_entries:
-                    self.ACTION_PRIO_QUEUE.put(e) 
-                    
-            # To save memory, Decrement remaining_children & remove 
-            # parent from self.PARENTS when remaining_children reaches 0. (We no more need it)
-            self.PARENTS[parentID]["remaining_children"]-=1
-            if self.PARENTS[parentID]["remaining_children"] == 0:
-                    del self.PARENTS[parentID]
-            
+        # Update the priority_Queue with the new node's children & costs + heuristics
+        possible_operators = self.WORLD.operators(new_state, ID)
+        pq_entries = self.format_for_PQ(possible_operators, parent, parent_cost) # format it to (c+h, (action, parent_id))  
+        for e in pq_entries:
+            self.ACTION_PRIO_QUEUE.put(e) 
+                
+        # To save memory, Decrement remaining_children & remove 
+        # parent from self.PARENTS when remaining_children reaches 0. (We no more need it)
+        self.PARENTS[parentID]["remaining_children"]-=1
+        if self.PARENTS[parentID]["remaining_children"] == 0:
+                del self.PARENTS[parentID]
+        
 
-            # Update the self.CURRENT & add it as a new parent
-            self.CURRENT = Node(ID, next_action, parent, parent.DEPTH+1, new_state)
-            if len(possible_operators)>0:
-                self.PARENTS[ID] = {"node":self.CURRENT,
-                                    "remaining_children":len(possible_operators),
-                                    "cost":self.CURR_COST}
+        # Update the self.CURRENT & add it as a new parent
+        self.CURRENT = Node(ID, next_action, parent, parent.DEPTH+1, new_state)
+        if len(possible_operators)>0:
+            self.PARENTS[ID] = {"node":self.CURRENT,
+                                "remaining_children":len(possible_operators),
+                                "cost":self.CURR_COST}
 
 
      
@@ -505,16 +489,14 @@ class AStar(SearchStrategy):
         state = parent.STATE
         new_operators=[]
         for operator in possible_operators :
-            action=operator[0]
-            
+            action=operator[0]         
             if self.H_MODE == "2":
                 h_value = self.GD.heuristic_two(action,state)
             else:       
                 h_value= self.GD.heuristic_one(action,state)
- 
+                
             self.CURR_COST = parent_cost + self.WORLD.COST_DIC[action]
-            f_value = h_value + self.CURR_COST
-                       
+            f_value = h_value + 2*self.CURR_COST                    
             new_operator=(f_value,operator)
             new_operators.append(new_operator)  
                         
@@ -531,11 +513,5 @@ class AStar(SearchStrategy):
             if self.CURRENT.ACTION == "Attack":
                 goal_reached = self.WORLD.goal_test(current_state)        
             node_id+=1
-            
-            #print(current_state.POS_ROW, current_state.POS_COLUMN)
-#            print(self.CURRENT.ACTION, self.CURRENT.DEPTH)
-#            print("Ammo:",current_state.INVENTORY_CURR,"\n")
-#            if node_id > 20:
-#                break
             
         return self.CURRENT

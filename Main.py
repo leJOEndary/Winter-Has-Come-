@@ -9,6 +9,7 @@ from Strategies import DepthFirst, BreadthFirst, UniformCost, IterativeDeepening
 from SavingWesteros import SaveWesteros
 from State import State
 import random
+import sys
 
 
 ###############################################################################
@@ -41,7 +42,7 @@ def genGrid(length, width):
 def search(grid, strategy, visualize):
     
     # Initializing the world using the Initial State
-    inventory = 2#random.randint(1,5)
+    inventory = 1#random.randint(1,5)
     row = len(grid)-1 
     column = len(grid[0])-1  
     init_state = State(grid, row, column, inventory_curr=inventory, inventory_max=inventory)   
@@ -50,6 +51,7 @@ def search(grid, strategy, visualize):
     
     
     print("Inventory size:", inventory)
+    print("Strategy:", strategy)
     
     # Initializing a strategy instance corresponding to given strategy
     try:
@@ -81,11 +83,15 @@ def visualize():
     pass
 
 
+print("i should be invisible",end='', flush=True)
+sys.stdout.flush()
+print("i am visible")
 
-
-res = search(TEST_GRID, "GD", False)
+res = search(TEST_GRID, "AS", False)
 print(res)
     
+
+
 
 
 

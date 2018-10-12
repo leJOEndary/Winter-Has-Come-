@@ -17,11 +17,11 @@ class SaveWesteros(GeneralSearchProblem):
     def __init__(self, initial_state):
         self.INITIAL_STATE =  initial_state
         self.COST_DIC = {"Initial":0,
-                         "Up":2,
-                         "Down":2,
-                         "Right":2,
-                         "Left":2,
-                         "Attack":4}
+                         "Up":1,
+                         "Down":1,
+                         "Right":1,
+                         "Left":1,
+                         "Attack":2}
         
     
     # This function is used by the agent to test if a Goal State is reached
@@ -89,19 +89,19 @@ class SaveWesteros(GeneralSearchProblem):
         posy = state.POS_COLUMN
         
         if state.POS_ROW < len(state.GRID)-1:
-            if grid[posx+1][posy] != 3:
+            if grid[posx+1][posy] not in  [3,1]:
                 result.append(("Down",parent_id))
             
         if state.POS_COLUMN < len(state.GRID[0])-1:
-            if grid[posx][posy+1] != 3:
+            if grid[posx][posy+1] not in [3,1]:
                result.append(("Right",parent_id))   
             
         if state.POS_COLUMN > 0:
-            if grid[posx][posy-1] != 3:
+            if grid[posx][posy-1] not in [3,1]:
                 result.append(("Left",parent_id))
             
         if state.POS_ROW > 0:
-            if grid[posx-1][posy] != 3:
+            if grid[posx-1][posy] not in [3,1]:
                 result.append(("Up",parent_id))
         
         if self.jonInDanger(state) and state.INVENTORY_CURR > 0:
