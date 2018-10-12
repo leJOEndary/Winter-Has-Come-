@@ -17,11 +17,11 @@ class SaveWesteros(GeneralSearchProblem):
     def __init__(self, initial_state):
         self.INITIAL_STATE =  initial_state
         self.COST_DIC = {"Initial":0,
-                         "Up":1,
-                         "Down":1,
-                         "Right":1,
-                         "Left":1,
-                         "Attack":2}
+                         "Up":2,
+                         "Down":2,
+                         "Right":2,
+                         "Left":2,
+                         "Attack":4}
         
     
     # This function is used by the agent to test if a Goal State is reached
