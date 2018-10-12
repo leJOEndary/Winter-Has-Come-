@@ -133,9 +133,9 @@ class BreadthFirst(SearchStrategy):
 
           # Update the self.CURRENT & add it as a new parent
           self.CURRENT = Node(ID, next_action, parent, parent.DEPTH + 1, new_state)
-          if len(possible_operators) > 0:
+          if len(new_possible_operators_toQueue) > 0:
               self.PARENTS[ID] = {"node": self.CURRENT,
-                                  "remaining_children": len(possible_operators)}
+                                  "remaining_children": len(new_possible_operators_toQueue)}
 
         self.CURRENT = Node(ID, next_action, parent, parent.DEPTH + 1, new_state)
 

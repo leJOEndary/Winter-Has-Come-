@@ -78,13 +78,13 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Strategies.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="312">
-              <caret line="131" column="30" lean-forward="true" selection-start-line="131" selection-start-column="30" selection-end-line="131" selection-end-column="30" />
+            <state relative-caret-position="372">
+              <caret line="136" column="55" lean-forward="true" selection-start-line="136" selection-start-column="55" selection-end-line="136" selection-end-column="55" />
               <folding>
                 <element signature="e#86#96#0" expanded="true" />
                 <element signature="e#3652#5492#0" />
-                <marker date="1539374336932" expanded="true" signature="3572:4893" ph="..." />
-                <marker date="1539374336932" expanded="true" signature="4913:5201" ph="..." />
+                <marker date="1539374358764" expanded="true" signature="3572:4917" ph="..." />
+                <marker date="1539374358764" expanded="true" signature="4937:5225" ph="..." />
               </folding>
             </state>
           </provider>
@@ -276,13 +276,13 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Strategies.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="312">
-          <caret line="131" column="30" lean-forward="true" selection-start-line="131" selection-start-column="30" selection-end-line="131" selection-end-column="30" />
+        <state relative-caret-position="372">
+          <caret line="136" column="55" lean-forward="true" selection-start-line="136" selection-start-column="55" selection-end-line="136" selection-end-column="55" />
           <folding>
             <element signature="e#86#96#0" expanded="true" />
             <element signature="e#3652#5492#0" />
-            <marker date="1539374336932" expanded="true" signature="3572:4893" ph="..." />
-            <marker date="1539374336932" expanded="true" signature="4913:5201" ph="..." />
+            <marker date="1539374358764" expanded="true" signature="3572:4917" ph="..." />
+            <marker date="1539374358764" expanded="true" signature="4937:5225" ph="..." />
           </folding>
         </state>
       </provider>
