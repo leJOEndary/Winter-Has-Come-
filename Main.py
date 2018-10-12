@@ -18,11 +18,9 @@ import random
 # 2 = The DragonStone Castle
 # 3 = Obstacle
 ###############################
-TEST_GRID = [[0,1,0,0,1],
-             [1,0,0,0,3],
-             [0,1,0,0,0],
-             [0,1,0,3,0],
-             [2,3,1,0,0]]
+TEST_GRID = [[0,0,0,0],
+             [0,0,1,0],
+             [0,0,0,0]]
 
 strategies_dic = {"DF":DepthFirst,
                   "BF":BreadthFirst,
@@ -82,7 +80,7 @@ def visualize():
 
 
 
-res = search(TEST_GRID, "AS", False)
+res = search(TEST_GRID, "BF", False)
 print(res)
     
 
