@@ -9,13 +9,12 @@ Created on Fri Oct  5 14:16:45 2018
 class State():
         
     # State Constructor
-    def __init__(self, grid, row, column, inventory_max, inventory_curr, alive=True):       
+    def __init__(self, grid, row, column, inventory_max, inventory_curr):       
        self.GRID = grid
        self.POS_ROW = row
        self.POS_COLUMN = column
        self.INVENTORY_MAX = inventory_max
        self.INVENTORY_CURR = inventory_curr
-       self.ALIVE = alive
        
     
     
@@ -62,9 +61,7 @@ class State():
         
         # The grid must be assigned cell by cell, else it will be assigned by reference and will cause problems.
         grid = clone_grid(self.GRID)
-        
-        
-        alive = True
+
         
         # Updating the grid & other state attributes 
         if action == "Attack":
@@ -92,11 +89,9 @@ class State():
             # Checking & Updating if we step on DragonStone or WhiteWalker or Obstacle
             if grid[row][column] == 2:
                 inventory_curr = inventory_max
-            if grid[row][column] in [1,3]:
-                alive = False
         
         
-        return State(grid, row, column, inventory_max, inventory_curr, alive)
+        return State(grid, row, column, inventory_max, inventory_curr)
             
         
             

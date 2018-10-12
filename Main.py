@@ -18,9 +18,11 @@ import random
 # 2 = The DragonStone Castle
 # 3 = Obstacle
 ###############################
-TEST_GRID = [[0,0,0,0],
-             [0,0,1,0],
-             [0,0,0,0]]
+
+TEST_GRID = [[0,0,1,0],
+             [3,0,0,1],
+             [0,1,0,0],
+             [2,0,3,0]]
 
 strategies_dic = {"DF":DepthFirst,
                   "BF":BreadthFirst,
@@ -40,15 +42,18 @@ def genGrid(length, width):
 def search(grid, strategy, visualize):
     
     # Initializing the world using the Initial State
-    inventory = random.randint(1,5)
+    inventory = 1#random.randint(1,5)
     row = len(grid)-1 
     column = len(grid[0])-1  
     init_state = State(grid, row, column, inventory_curr=inventory, inventory_max=inventory)   
     world = SaveWesteros(init_state) 
     
-    # Initializing a strategy instance corresponding to given strategy
+    
     
     print("Inventory size:", inventory)
+    print("Strategy:", strategy)
+    
+    # Initializing a strategy instance corresponding to given strategy
     try:
         strategy_Object = strategies_dic[strategy[:2]](world, strategy[2])
     except Exception as e:
@@ -80,9 +85,11 @@ def visualize():
 
 
 
-res = search(TEST_GRID, "BF", False)
+res = search(TEST_GRID, "AS", False)
 print(res)
     
+
+
 
 
 

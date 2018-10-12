@@ -85,19 +85,19 @@ class SaveWesteros(GeneralSearchProblem):
         posy = state.POS_COLUMN
         
         if state.POS_ROW < len(state.GRID)-1:
-            if grid[posx+1][posy] != 3:
+            if grid[posx+1][posy] not in  [3,1]:
                 result.append(("Down",parent_id))
             
         if state.POS_COLUMN < len(state.GRID[0])-1:
-            if grid[posx][posy+1] != 3:
+            if grid[posx][posy+1] not in [3,1]:
                result.append(("Right",parent_id))   
             
         if state.POS_COLUMN > 0:
-            if grid[posx][posy-1] != 3:
+            if grid[posx][posy-1] not in [3,1]:
                 result.append(("Left",parent_id))
             
         if state.POS_ROW > 0:
-            if grid[posx-1][posy] != 3:
+            if grid[posx-1][posy] not in [3,1]:
                 result.append(("Up",parent_id))
         
         if self.jonInDanger(state) and state.INVENTORY_CURR > 0:
