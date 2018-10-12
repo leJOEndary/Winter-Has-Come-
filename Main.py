@@ -82,7 +82,7 @@ def visualize():
 
 
 
-res = search(TEST_GRID, "AS", False)
+res = search(TEST_GRID, "BF", False)
 print(res)
     
 

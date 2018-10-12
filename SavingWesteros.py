@@ -7,10 +7,6 @@ Created on Mon Oct  1 15:32:40 2018
 from SearchProblem import GeneralSearchProblem
 from Node import Node
 
-
- 
-    
-
     
 class SaveWesteros(GeneralSearchProblem):    
 
