@@ -113,7 +113,7 @@ class BreadthFirst(SearchStrategy):
     def create_node(self,ID):
         # DEQUEUE the next action
         next_action, parent_id = self.ACTION_QUEUE.get() # (next_action, parent_id)
-
+        parent = self.PARENTS[parent_id]["node"]
         #Expand the state(node) and get the new list of possible operators of the next level
         new_state = State.get_new_state(next_action)
         if new_state.ALIVE:
@@ -125,13 +125,17 @@ class BreadthFirst(SearchStrategy):
 
 
 
+          # To save memory, Decrement remaining_children & remove
+          # parent from self.PARENTS when remaining_children reaches 0. (We no more need it)
+          self.PARENTS[parent_id]["remaining_children"] -= 1
+          if self.PARENTS[parent_id]["remaining_children"] == 0:
+              del self.PARENTS[parent_id]
 
-           parent=self.PARENTS[parent_id]["node"]
-
-
-
-
-
+          # Update the self.CURRENT & add it as a new parent
+          self.CURRENT = Node(ID, next_action, parent, parent.DEPTH + 1, new_state)
+          if len(possible_operators) > 0:
+              self.PARENTS[ID] = {"node": self.CURRENT,
+                                  "remaining_children": len(possible_operators)}
 
         self.CURRENT = Node(ID, next_action, parent, parent.DEPTH + 1, new_state)
 
