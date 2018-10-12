@@ -18,6 +18,7 @@ import random
 # 2 = The DragonStone Castle
 # 3 = Obstacle
 ###############################
+
 TEST_GRID = [[0,0,1,0],
              [3,0,0,1],
              [0,1,0,0],
@@ -80,6 +81,7 @@ def search(grid, strategy, visualize):
 # Visual representation of discovered solution applied to the grid 
 def visualize():
     pass
+
 
 
 
