@@ -9,7 +9,6 @@ from Strategies import DepthFirst, BreadthFirst, UniformCost, IterativeDeepening
 from SavingWesteros import SaveWesteros
 from State import State
 import random
-import sys
 
 
 ###############################################################################
@@ -83,9 +82,6 @@ def visualize():
     pass
 
 
-print("i should be invisible",end='', flush=True)
-sys.stdout.flush()
-print("i am visible")
 
 res = search(TEST_GRID, "AS", False)
 print(res)
