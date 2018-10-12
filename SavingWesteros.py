@@ -84,17 +84,25 @@ class SaveWesteros(GeneralSearchProblem):
         #implemented by Marwan & Youssef      
         result=[]
         
+        grid = state.GRID
+        posx = state.POS_ROW
+        posy = state.POS_COLUMN
+        
         if state.POS_ROW < len(state.GRID)-1:
-            result.append(("Down",parent_id))
+            if grid[posx+1][posy] not in  [3,1]:
+                result.append(("Down",parent_id))
             
         if state.POS_COLUMN < len(state.GRID[0])-1:
-            result.append(("Right",parent_id))   
+            if grid[posx][posy+1] not in [3,1]:
+               result.append(("Right",parent_id))   
             
         if state.POS_COLUMN > 0:
-            result.append(("Left",parent_id))
+            if grid[posx][posy-1] not in [3,1]:
+                result.append(("Left",parent_id))
             
         if state.POS_ROW > 0:
-            result.append(("Up",parent_id))
+            if grid[posx-1][posy] not in [3,1]:
+                result.append(("Up",parent_id))
         
         if self.jonInDanger(state) and state.INVENTORY_CURR > 0:
             result.append(("Attack",parent_id))
