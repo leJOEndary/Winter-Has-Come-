@@ -101,13 +101,22 @@ class BreadthFirst(SearchStrategy):
           self.ACTION__QUEUE.put(operator)
 
 
+         # All the nodes with unexplored children
+         self.PARENTS = {
+              -1: {
+                  "node": root,
+                  "remaining_children": len(possible_operators)
+              }
+          }
+
+
     def create_node(self,ID):
         # DEQUEUE the next action
         next_action, parent_id = self.ACTION_QUEUE.get() # (next_action, parent_id)
 
         #Expand the state(node) and get the new list of possible operators of the next level
         new_state = State.get_new_state(next_action)
-        if not new_state.ALIVE:
+        if new_state.ALIVE:
           new_possible_operators_toQueue= self.WORLD.operators(new_state, parent_id)
           # Queue the new possible operators
           for operator in new_possible_operators_toQueue:
@@ -117,6 +126,7 @@ class BreadthFirst(SearchStrategy):
 
 
 
+           parent=self.PARENTS[parent_id]["node"]
 
 
 
