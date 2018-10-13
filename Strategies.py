@@ -14,6 +14,10 @@ from State import State
 class SearchStrategy(abc.ABC):
     # returns the next move suggested for the agent, which is the node chosen for expansion
     @abc.abstractmethod
+    def create_node(self, ID):
+        pass
+    
+    @abc.abstractmethod
     def form_plan(self):
         pass
 
@@ -126,23 +130,23 @@ class BreadthFirst(SearchStrategy):
           # Expand the state(node) and get the new list of possible operators of the next level
           new_state = parent.STATE.get_new_state(next_action)
 
-          if new_state.ALIVE:
-              new_possible_operators_toQueue = self.WORLD.operators(new_state, ID)  # List of the form (action, id)
-              # Queue the new possible operators
-              for operator in new_possible_operators_toQueue:
-                  self.ACTION_QUEUE.put(operator)
+          
+          new_possible_operators_toQueue = self.WORLD.operators(new_state, ID)  # List of the form (action, id)
+          # Queue the new possible operators
+          for operator in new_possible_operators_toQueue:
+              self.ACTION_QUEUE.put(operator)
 
-              # To save memory, Decrement remaining_children & remove
-              # parent from self.PARENTS when remaining_children reaches 0. (We no more need it)
-              self.PARENTS[parent_id]["remaining_children"] -= 1
-              if self.PARENTS[parent_id]["remaining_children"] == 0:
-                  del self.PARENTS[parent_id]
+          # To save memory, Decrement remaining_children & remove
+          # parent from self.PARENTS when remaining_children reaches 0. (We no more need it)
+          self.PARENTS[parent_id]["remaining_children"] -= 1
+          if self.PARENTS[parent_id]["remaining_children"] == 0:
+              del self.PARENTS[parent_id]
 
-              # Update the self.CURRENT & add it as a new parent
-              self.CURRENT = Node(ID, next_action, parent, parent.DEPTH + 1, new_state)
-              if len(new_possible_operators_toQueue) > 0:
-                  self.PARENTS[ID] = {"node": self.CURRENT,
-                                      "remaining_children": len(new_possible_operators_toQueue)}
+          # Update the self.CURRENT & add it as a new parent
+          self.CURRENT = Node(ID, next_action, parent, parent.DEPTH + 1, new_state)
+          if len(new_possible_operators_toQueue) > 0:
+              self.PARENTS[ID] = {"node": self.CURRENT,
+                                  "remaining_children": len(new_possible_operators_toQueue)}
 
       def form_plan(self):
           node_id = 0
@@ -347,7 +351,7 @@ class Greedy(SearchStrategy):
     def create_node(self,ID):   
         
         next_action, parentID = self.ACTION_STACK.pop()
- 
+        
         # This block is responsible for finding the parent of our next move by matching the ID
         # of the parent/grandparent, with the ID associated with the next action in the ACTION_Stack
         parent = self.CURRENT
@@ -356,12 +360,14 @@ class Greedy(SearchStrategy):
                 
         current_state = parent.STATE   
         new_state=current_state.get_new_state(next_action)
-        
+
            
         possible_operators = self.WORLD.operators(new_state, ID)
         stack_entries = self.format_for_Stack(possible_operators,current_state)  
-        self.ACTION_STACK.extend(stack_entries)
-                    
+        self.ACTION_STACK.append(stack_entries[0])
+        
+        #print(stack_entries[0], end='\n\n')
+        
         self.CURRENT = Node(ID, next_action, parent, parent.DEPTH+1, new_state)
         
       
@@ -386,12 +392,11 @@ class Greedy(SearchStrategy):
             total_distance=0
 
             for location in ww_locations:           
-
                 distance= self.get_manhatten_distance(coords[0],coords[1],location[0], location[1])     
                 total_distance+=distance
               
             if total_distance > 0:
-                return total_distance#//len(ww_locations)
+                return total_distance//len(ww_locations)
             else:
                 return 99    
         else:    
@@ -434,6 +439,9 @@ class Greedy(SearchStrategy):
                 goal_reached = self.WORLD.goal_test(current_state) 
             node_id+=1   
             
+#            if node_id>10:
+#                break
+            
         return self.CURRENT
     
     
@@ -452,11 +460,13 @@ class Greedy(SearchStrategy):
                 h_value= self.heuristic_one(action,state)       
             new_operator=(h_value,operator)
             new_operators.put(new_operator)  
+          
+        #print(new_operators.queue)
             
         result = []
         for o in new_operators.queue:
             result.append(o[1])       
-        result.reverse()   
+        #result.reverse()   
         return result
         
         
@@ -578,7 +588,7 @@ class AStar(SearchStrategy):
 
                 
             self.CURR_COST = parent_cost + self.WORLD.COST_DIC[action]
-            f_value = h_value + 2*self.CURR_COST                    
+            f_value = h_value + self.CURR_COST                    
 
             new_operator=(f_value,operator)
             new_operators.append(new_operator)
