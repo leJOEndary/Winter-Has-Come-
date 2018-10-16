@@ -69,7 +69,7 @@ def genGrid():
 def search(grid, strategy, visualize):
     
     # Initializing the world using the Initial State
-    inventory = 1#random.randint(1,5)
+    inventory = random.randint(1,5)
     row = len(grid)-1 
     column = len(grid[0])-1  
     init_state = State(grid, row, column, inventory_curr=inventory, inventory_max=inventory)   
