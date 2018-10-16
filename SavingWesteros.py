@@ -7,10 +7,6 @@ Created on Mon Oct  1 15:32:40 2018
 from SearchProblem import GeneralSearchProblem
 from Node import Node
 
-
- 
-    
-
     
 class SaveWesteros(GeneralSearchProblem):    
 
@@ -34,6 +30,7 @@ class SaveWesteros(GeneralSearchProblem):
                     return False 
         return True
     
+    
     # Parses a node into a sequence of actions represented in an array of strings
     def parse_action_sequence(self, node):    
         c = node
@@ -43,6 +40,7 @@ class SaveWesteros(GeneralSearchProblem):
             c = c.PARENT  
         winning_sequence.reverse()
         return winning_sequence 
+    
     
     
     # The initial state of our problem
@@ -59,14 +57,13 @@ class SaveWesteros(GeneralSearchProblem):
         # To be implemented, by Youssef
         # These are the default costs for each action
         # In case of killing, cost should vary depending on the number of adjacent white walkers.
-        total_cost = 0
-        
+        total_cost = 0   
         current = node
         while current.PARENT != None:
             total_cost += self.COST_DIC[current.ACTION]  
-            current = current.PARENT
-        
+            current = current.PARENT   
         return total_cost
+    
     
     
     # The set of states reachable from the initial state by any sequence of actions.
@@ -74,14 +71,13 @@ class SaveWesteros(GeneralSearchProblem):
     # N.B. Norhan mentioned that we will need to avoid pre-calculating all 
     # states and rather calculate each state as we encounter it to save space.
     def state_space(self):
-        # To be implemented, by ...
+        # The state transition function can be found in the State Class
         return None
 
     
 
     # The set of possible actions available to the agent, in the current state
-    def operators(self, state, parent_id): 
-        #implemented by Marwan & Youssef      
+    def operators(self, state, parent_id):     
         result=[]
         
         grid = state.GRID
@@ -108,13 +104,10 @@ class SaveWesteros(GeneralSearchProblem):
             result.append(("Attack",parent_id))
 
         return result
- 
-    
-    
+     
     
     # Returns true if there's an adjacent WhiteWalker (Represented by 1 in the grid)
     def jonInDanger(self, state):
-        #implemented by Marwan & Youssef  
         row = state.POS_ROW
         column = state.POS_COLUMN
         grid = state.GRID

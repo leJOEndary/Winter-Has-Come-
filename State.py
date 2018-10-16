@@ -16,8 +16,7 @@ class State():
        self.INVENTORY_MAX = inventory_max
        self.INVENTORY_CURR = inventory_curr
        
-    
-    
+       
     # Computes next state from the current state and a given action.  
     def get_new_state(self, action):
         
@@ -42,16 +41,6 @@ class State():
                 
             return grid
        
-        # Returns different (GRID) object of the same value 
-        def clone_grid(grid):         
-            new_grid = []
-            for row in grid:
-                new_row = []
-                for cell in row:
-                    new_row.append(cell)
-                new_grid.append(new_row)
-                
-            return new_grid
         
         # Initializing the new state values as the current one
         row = self.POS_ROW
@@ -60,7 +49,7 @@ class State():
         inventory_curr = self.INVENTORY_CURR
         
         # The grid must be assigned cell by cell, else it will be assigned by reference and will cause problems.
-        grid = clone_grid(self.GRID)
+        grid = self.clone_grid(self.GRID)
 
         
         # Updating the grid & other state attributes 
@@ -93,8 +82,52 @@ class State():
         
         return State(grid, row, column, inventory_max, inventory_curr)
             
-        
+    # Returns different (GRID) object of the same value 
+    def clone_grid(self, grid):         
+        new_grid = []
+        for row in grid:
+            new_row = []
+            for cell in row:
+                new_row.append(cell)
+            new_grid.append(new_row)
             
+        return new_grid
+
+    def __str__(self):        
+        result = "\n" + "DragonGlass available: " + str(self.INVENTORY_CURR)        
+        grid = self.clone_grid(self.GRID)
+        
+        # Making a J Appear
+        jon_x = self.POS_ROW
+        jon_y = self.POS_COLUMN
+        grid[jon_x][jon_y] = "J"
+        
+        grid_str = ""
+        for row in grid:
+            for cell in row:
+                if cell == 0:
+                    cell = "[ ]"
+                elif cell == 1:
+                    cell = "[W]"
+                elif cell == 2:
+                    cell = "[D]"
+                elif cell == 3:
+                    cell = "[O]"
+                else:
+                    cell = "[J]"   
+                grid_str += cell
+            grid_str += "\n"
+                    
+        result += "\n"+grid_str
+        return result
+                
+            
+            
+                    
+        
+        
+        
+        
         
             
             
