@@ -19,23 +19,20 @@ class Heuristics():
     
     
     
-    def heuristic_one(self, action, state):
-        
+    def heuristic_one(self, action, state):       
         if action != "Attack":
             grid = state.GRID
             current_row = state.POS_ROW
             current_col = state.POS_COLUMN
             
-
             # Updating Position
-            coords = self.update_position(current_row, current_col, action, grid)
+            coords = self.update_position(current_row, current_col, action, grid)  
             
             # Get coordinates of each whitewalker (1) in the grid
             ww_locations = self.locate_value(grid, 1)
-
+            
             # Calculate sum of manhatten distance between updated position and each whitewalker
             total_distance=0
-
             for location in ww_locations:           
                 distance= self.get_manhatten_distance(coords[0],coords[1],location[0], location[1])     
                 total_distance+=distance
@@ -51,10 +48,8 @@ class Heuristics():
     
 
     def heuristic_two(self, action, state):
-
         if state.INVENTORY_CURR > 0:
             return self.heuristic_one(action, state)
-
         else:
             grid = state.GRID
             current_row = state.POS_ROW
@@ -102,13 +97,11 @@ class Heuristics():
                 current_col += 1
         if current_col > 0:
             if action == "Left":
-                current_col -= 1
-            
+                current_col -= 1        
         if current_row > 0:
             if action == "Up":
                 current_row -= 1
         if current_row < len(grid)-1:
             if action == "Down":
-                current_row += 1
-        
+                current_row += 1       
         return (current_row, current_col)

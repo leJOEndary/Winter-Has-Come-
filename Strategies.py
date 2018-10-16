@@ -27,8 +27,6 @@ class SearchStrategy(abc.ABC):
 # Stack
 class DepthFirst(SearchStrategy):
 
-
-
     def __init__(self, world, limit=None, random=True):
         self.WORLD = world
         root = Node(-1,"Initial", None, 0, world.INITIAL_STATE)
@@ -44,30 +42,21 @@ class DepthFirst(SearchStrategy):
     def create_node(self, ID):
         # Action is determined from the action_stack
         next_action, parent_id = self.ACTION_STACK.pop() # (next_action, parent_id)
-        old_node = self.CURRENT
-        old_state = old_node.STATE
-
-
-        parent = old_node
+        parent = self.CURRENT
 
         # self.LIMIT is for the usability of this class with The IterativeDeepening,
         # so, we need to check that it's not none to avoid comparing Non with boolean.
         if self.LIMIT != None:
-            limit_not_reached = self.LIMIT > old_node.DEPTH
+            limit_not_reached = self.LIMIT > parent.DEPTH
         else:
             limit_not_reached = True
 
         # This block is responsible for finding the parent of our next move by matching the ID
         # of the parent/grandparent, with the ID associated with the next action in the ACTION_Stack
-
         if not limit_not_reached: 
-            parent = old_node 
             while parent.ID != parent_id:
                 parent = parent.PARENT
-
         new_state = parent.STATE.get_new_state(next_action)
-
-
         if limit_not_reached:
             possible_operators = self.WORLD.operators(new_state, ID)
 
@@ -86,14 +75,12 @@ class DepthFirst(SearchStrategy):
     def form_plan(self):
         node_id = 0
         goal_reached = False
-        while not goal_reached:
-            node_id+=1
+        while not goal_reached:   
             self.create_node(node_id)
             current_state = self.CURRENT.STATE
-
             if self.CURRENT.ACTION == "Attack":  
                 goal_reached = self.WORLD.goal_test(current_state) 
-        
+            node_id+=1 
         return self.CURRENT
     
 
@@ -110,6 +97,7 @@ class BreadthFirst(SearchStrategy):
           self.CURRENT = root
           self.ACTION_QUEUE = Queue()
           possible_operators = world.operators(world.INITIAL_STATE, -1)
+          
           # All the nodes with unexplored children
           self.PARENTS = {
               -1: {
@@ -117,10 +105,11 @@ class BreadthFirst(SearchStrategy):
                   "remaining_children": len(possible_operators)
               }
           }
-
           # queuing possible operator(actions) of the intial state
           for operator in possible_operators:
               self.ACTION_QUEUE.put(operator)
+
+
 
       def create_node(self, ID):
           # DEQUEUE the next action
@@ -130,8 +119,7 @@ class BreadthFirst(SearchStrategy):
 
           # Expand the state(node) and get the new list of possible operators of the next level
           new_state = parent.STATE.get_new_state(next_action)
-
-          
+         
           new_possible_operators_toQueue = self.WORLD.operators(new_state, ID)  # List of the form (action, id)
           # Queue the new possible operators
           for operator in new_possible_operators_toQueue:
@@ -149,18 +137,18 @@ class BreadthFirst(SearchStrategy):
               self.PARENTS[ID] = {"node": self.CURRENT,
                                   "remaining_children": len(new_possible_operators_toQueue)}
 
+
+
       def form_plan(self):
           node_id = 0
           goal_reached = False
           while not goal_reached:
-              # print (self.ACTION_QUEUE.queue,self.CURRENT.ACTION, self.CURRENT.STATE.POS_ROW, self.CURRENT.STATE.POS_COLUMN)
               self.create_node(node_id)
               current_state = self.CURRENT.STATE
               goal_reached = self.WORLD.goal_test(current_state)
               node_id += 1
-
           return self.CURRENT
-      # To be discussed
+
 
 ##################################################################################################
 
@@ -178,33 +166,28 @@ class IterativeDeepening(SearchStrategy):
         
         
     def create_node(self, ID, depth_limit):       
-
         current_depth = self.DEPTH_STACK.pop()
         if current_depth<=depth_limit:
-
             action_stack_len_before = len(self.DF.ACTION_STACK)
             self.DF.create_node(ID)
             action_stack_len_after = len(self.DF.ACTION_STACK)
-
             delta_stack_len = action_stack_len_after - action_stack_len_before
             new_depth = self.DF.CURRENT.DEPTH+1
             for _ in range(delta_stack_len+1):
-
                 self.DEPTH_STACK.append(new_depth)
         else:
             self.DF.ACTION_STACK.pop()
 
             
             
+            
     def form_plan(self):
         depth_limit = 1
         goal_reached = False
         nodes_expanded = 0
-
         while not goal_reached:            
             self.reset_df(depth_limit)
             node_id = 0            
-
             while not goal_reached and len(self.DF.ACTION_STACK) > 0:
                 node_id+=1
                 self.create_node(node_id, depth_limit)
@@ -212,10 +195,8 @@ class IterativeDeepening(SearchStrategy):
 
                 if self.DF.CURRENT.ACTION == "Attack":
                     goal_reached = self.WORLD.goal_test(current_state) 
-
             nodes_expanded += node_id
             depth_limit+=1
-
         self.DF.CURRENT.ID = nodes_expanded
         return self.DF.CURRENT
 
@@ -226,6 +207,8 @@ class IterativeDeepening(SearchStrategy):
                 ##############################   
     
     
+    
+    # Resets the DepthFirst Instance with a new limit
     def reset_df(self, depth_limit):
         self.DF = DepthFirst(self.WORLD, depth_limit)
         self.DEPTH_STACK = []
@@ -245,7 +228,6 @@ class UniformCost(SearchStrategy):
         self.ROOT = root
         self.CURRENT = root
         possible_operators = world.operators(root.STATE, -1)
-
         # All the nodes with unexplored children
         self.PARENTS = {
                     -1:{
@@ -253,14 +235,13 @@ class UniformCost(SearchStrategy):
                         "remaining_children":len(possible_operators)
                         }
                     }
-
         # PriorityQueue is a predefind datatype in python that takes in tuples (cost, data)
         self.ACTION_PRIO_QUEUE = PriorityQueue()
-
         # Initialize the PRIORITY_QUEUE by filling it with the initially available actions
         pq_entries = self.format_for_PQ(possible_operators, 0)
         for e in pq_entries:
             self.ACTION_PRIO_QUEUE.put(e)
+
 
 
 
@@ -271,9 +252,7 @@ class UniformCost(SearchStrategy):
         # getting parent & computing the new_state
         parent = self.PARENTS[parentID]["node"]
         new_state = parent.STATE.get_new_state(next_action)
-
-        
-        
+    
         # Update the priority_Queue with the new node's children & costs
         possible_operators = self.WORLD.operators(new_state, ID)
         pq_entries = self.format_for_PQ(possible_operators, cost) # format it to (cost, (action, parent_id))
@@ -295,17 +274,14 @@ class UniformCost(SearchStrategy):
         
         
     def form_plan(self):  
-
         node_id = 0
         goal_reached = False
         while not goal_reached:
-            node_id+=1
             self.create_node(node_id)
             current_state = self.CURRENT.STATE
-
             if self.CURRENT.ACTION == "Attack":    
-                goal_reached = self.WORLD.goal_test(current_state) 
-            
+                goal_reached = self.WORLD.goal_test(current_state)
+            node_id+=1      
         return self.CURRENT
     
     
@@ -337,7 +313,6 @@ class Greedy(SearchStrategy):
         root = Node(-1,"Initial", None, 0, world.INITIAL_STATE)
         self.ROOT = root
         self.CURRENT = root
-
         self.HEURISTICS = Heuristics(heuristic_mode)
         self.ACTION_STACK = []     
         possible_operators = world.operators(root.STATE, -1) 
@@ -346,23 +321,19 @@ class Greedy(SearchStrategy):
     
     
     
-    def create_node(self,ID):   
-        
-        next_action, parentID = self.ACTION_STACK.pop()
+    def create_node(self,ID):           
+        next_action, parentID = self.ACTION_STACK.pop()   
         
         # This block is responsible for finding the parent of our next move by matching the ID
         # of the parent/grandparent, with the ID associated with the next action in the ACTION_Stack
         parent = self.CURRENT
         while parent.ID != parentID:
-            parent = parent.PARENT
-                
+            parent = parent.PARENT              
         current_state = parent.STATE   
-        new_state = current_state.get_new_state(next_action)
-           
+        new_state = current_state.get_new_state(next_action)        
         possible_operators = self.WORLD.operators(new_state, ID)
         stack_entries = self.format_for_Stack(possible_operators,current_state)  
         self.ACTION_STACK.append(stack_entries[0])
-        
         self.CURRENT = Node(ID, next_action, parent, parent.DEPTH+1, new_state)
         
       
@@ -375,9 +346,9 @@ class Greedy(SearchStrategy):
             self.create_node(node_id)
             current_state = self.CURRENT.STATE
             if self.CURRENT.ACTION == "Attack":  
-                goal_reached = self.WORLD.goal_test(current_state) 
-            
+                goal_reached = self.WORLD.goal_test(current_state)        
             node_id+=1   
+        
         return self.CURRENT
     
     
@@ -393,8 +364,6 @@ class Greedy(SearchStrategy):
             h_value = self.HEURISTICS.heuristic(action, state)      
             new_operator=(h_value,operator)
             new_operators.put(new_operator)  
-          
-        #print(new_operators.queue)
             
         result = []
         for o in new_operators.queue:
@@ -414,11 +383,13 @@ class AStar(SearchStrategy):
         self.CURRENT = root
         self.CURR_COST = 1
         self.HEURISTICS = Heuristics(heuristic_mode)
-
+        
         # Should contain format (h+c , (action, parentID))
         self.ACTION_PRIO_QUEUE = PriorityQueue()
+        
         # returns format (action, parentID)
         possible_operators = world.operators(root.STATE, -1)
+        
         # All the nodes with unexplored children
         self.PARENTS = {
                     -1:{
@@ -427,7 +398,6 @@ class AStar(SearchStrategy):
                         "cost":0
                         }
                     }
-
         # Initialize the PRIORITY_QUEUE by filling it with the initially available actions
         pq_entries = self.format_for_PQ(possible_operators, self.CURRENT,0)
         for e in pq_entries:
@@ -437,7 +407,6 @@ class AStar(SearchStrategy):
 
 
     def create_node(self,ID):
-
         f_value, data = self.ACTION_PRIO_QUEUE.get()
         next_action, parentID = data
         parent = self.PARENTS[parentID]["node"]
@@ -456,7 +425,6 @@ class AStar(SearchStrategy):
         if self.PARENTS[parentID]["remaining_children"] == 0:
             del self.PARENTS[parentID]
         
-
         # Update the self.CURRENT & add it as a new parent
         self.CURRENT = Node(ID, next_action, parent, parent.DEPTH+1, new_state)
         if len(possible_operators)>0:
@@ -475,11 +443,11 @@ class AStar(SearchStrategy):
             h_value = self.HEURISTICS.heuristic(action, state)                
             self.CURR_COST = parent_cost + self.WORLD.COST_DIC[action]
             f_value = h_value + self.CURR_COST                    
-
             new_operator=(f_value,operator)
             new_operators.append(new_operator)
 
         return new_operators
+
 
 
 
@@ -491,6 +459,5 @@ class AStar(SearchStrategy):
             current_state = self.CURRENT.STATE
             if self.CURRENT.ACTION == "Attack":
                 goal_reached = self.WORLD.goal_test(current_state)        
-            node_id+=1
-            
+            node_id+=1           
         return self.CURRENT

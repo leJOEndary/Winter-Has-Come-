@@ -35,7 +35,7 @@ INPUT_GRID =[[1,0,1,3],
 RANDOMIZE_GRID = False
 LENGTH = 4
 WIDTH = 4
-###########################################################################
+######################################################
 ###############################
 
 strategies_dic = {"DF":DepthFirst,
@@ -114,15 +114,7 @@ def visualize_plan(node):
         time.sleep(1)
         print("{}-".format(i+1), state[0], state[1])
         
-    #Printing
-#    for grid in grids:
-#        time.sleep(1)
-#        for row in grid:
-#            for cell in row:   
-#                print(cell,end=" ")
-#            print()
-#        print()
-        
+
         
 result = search(genGrid(), STRATEGY, VISUALIZE)
 print("Winning Sequence:  ",result[0])
