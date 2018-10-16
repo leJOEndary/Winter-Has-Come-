@@ -21,24 +21,22 @@ import time
 # Controls #
 ############
 
-STRATEGY = "ID"
+STRATEGY = "AS"
 
-VISUALIZE = False
+VISUALIZE = True
 
-INPUT_GRID =[[2,0,1,0],
-             [3,0,0,1],
-             [0,0,0,0],
-             [1,0,3,0]]
+
+INPUT_GRID =[[1,0,1,3],
+             [0,3,0,1],
+             [3,0,1,3],
+             [2,0,0,0]]
 
 # Will be used to generate a random grid if the RANDOMIZE_GRID = True
 RANDOMIZE_GRID = False
 LENGTH = 4
 WIDTH = 4
-
 ###########################################################################
 ###############################
-
-
 
 strategies_dic = {"DF":DepthFirst,
                   "BF":BreadthFirst,
@@ -51,8 +49,7 @@ strategies_dic = {"DF":DepthFirst,
 def genGrid():
     if not RANDOMIZE_GRID:
         return INPUT_GRID
-    else:
-        
+    else:       
         grid = []
         print("Generated Grid :")
         for i  in range(LENGTH):
@@ -68,8 +65,6 @@ def genGrid():
         
 
 
-
-
 # Searches for a possible winning plan
 def search(grid, strategy, visualize):
     
@@ -78,10 +73,7 @@ def search(grid, strategy, visualize):
     row = len(grid)-1 
     column = len(grid[0])-1  
     init_state = State(grid, row, column, inventory_curr=inventory, inventory_max=inventory)   
-    world = SaveWesteros(init_state) 
-    
-    
-    
+    world = SaveWesteros(init_state)       
     print("Inventory size  :  ", inventory)
     print("Strategy        :  ", strategy)
     
@@ -99,12 +91,10 @@ def search(grid, strategy, visualize):
     representation_of_moves_to_goal = world.parse_action_sequence(final_node)
     solution_cost = world.path_cost(final_node) 
     
-    
     # Visualize the winning plan
     if visualize:
-       visualize_plan(final_node)
-    #################### 
- 
+        visualize_plan(final_node)
+    
     return [representation_of_moves_to_goal,
             solution_cost,
             final_node.ID]
@@ -114,27 +104,24 @@ def search(grid, strategy, visualize):
 # Visual representation of discovered solution applied to the grid 
 def visualize_plan(node):    
     current = node
-    grids = []
+    states = []
     while current != None:        
-        # Making JS Appear
-        jon_x = current.STATE.POS_ROW
-        jon_y = current.STATE.POS_COLUMN
-        grid = current.STATE.GRID
-        grid[jon_x][jon_y] = "J"
-        
-        grids.append(grid)
+        states.append((current.ACTION, current.STATE))
         current = current.PARENT
     
-    grids.reverse()
-    
-    #Printing
-    for grid in grids:
+    states.reverse()    
+    for i,state in enumerate(states):
         time.sleep(1)
-        for row in grid:
-            for cell in row:   
-                print(cell,end=" ")
-            print()
-        print()
+        print("{}-".format(i+1), state[0], state[1])
+        
+    #Printing
+#    for grid in grids:
+#        time.sleep(1)
+#        for row in grid:
+#            for cell in row:   
+#                print(cell,end=" ")
+#            print()
+#        print()
         
         
 result = search(genGrid(), STRATEGY, VISUALIZE)

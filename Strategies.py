@@ -9,6 +9,7 @@ from Node import Node
 from queue import Queue, PriorityQueue
 from random import shuffle
 from State import State
+from Heuristics import Heuristics
 
 
 class SearchStrategy(abc.ABC):
@@ -170,7 +171,6 @@ class IterativeDeepening(SearchStrategy):
     def __init__(self, world):
         self.WORLD = world
         init_state = world.INITIAL_STATE
-
         self.INIT_STATE = State(init_state.GRID, init_state.POS_ROW, init_state.POS_COLUMN,
                                 init_state.INVENTORY_MAX, init_state.INVENTORY_CURR)
         self.reset_df(1)                        
@@ -332,15 +332,13 @@ class UniformCost(SearchStrategy):
 class Greedy(SearchStrategy):
 
     
-    def __init__(self, world, heuristic="2"):     
-
-
+    def __init__(self, world, heuristic_mode="2"):     
         self.WORLD = world
         root = Node(-1,"Initial", None, 0, world.INITIAL_STATE)
         self.ROOT = root
         self.CURRENT = root
-        self.H_MODE = heuristic
 
+        self.HEURISTICS = Heuristics(heuristic_mode)
         self.ACTION_STACK = []     
         possible_operators = world.operators(root.STATE, -1) 
         stack_entries = self.format_for_Stack(possible_operators, self.CURRENT.STATE)      
@@ -359,74 +357,15 @@ class Greedy(SearchStrategy):
             parent = parent.PARENT
                 
         current_state = parent.STATE   
-        new_state=current_state.get_new_state(next_action)
-
+        new_state = current_state.get_new_state(next_action)
            
         possible_operators = self.WORLD.operators(new_state, ID)
         stack_entries = self.format_for_Stack(possible_operators,current_state)  
         self.ACTION_STACK.append(stack_entries[0])
         
-        #print(stack_entries[0], end='\n\n')
-        
         self.CURRENT = Node(ID, next_action, parent, parent.DEPTH+1, new_state)
         
       
-        
-    def heuristic_one(self, action, state):
-        
-        if action != "Attack":
-          
-            grid = state.GRID
-            current_row = state.POS_ROW
-            current_col = state.POS_COLUMN
-
-            # Updating Position
-
-            coords = self.update_position(current_row, current_col, action, grid)
-            
-
-            # Get coordinates of each whitewalker (1) in the grid
-            ww_locations = self.locate_value(grid, 1)
-
-            # Calculate sum of manhatten distance between updated position and each whitewalker
-            total_distance=0
-
-            for location in ww_locations:           
-                distance= self.get_manhatten_distance(coords[0],coords[1],location[0], location[1])     
-                total_distance+=distance
-              
-            if total_distance > 0:
-                return total_distance//len(ww_locations)
-            else:
-                return 99    
-        else:    
-            return 0
-        
-   
-    
-
-    def heuristic_two(self, action, state):
-
-        if state.INVENTORY_CURR > 0:
-            return self.heuristic_one(action, state)
-
-        else:
-            grid = state.GRID
-            current_row = state.POS_ROW
-            current_col = state.POS_COLUMN
-
-            # Updating Position
-            current_row, current_col = self.update_position(current_row, current_col, action, grid)
-
-            # Get coordinates of the DragonStone (2) in the grid
-            dragon_stone_location = self.locate_value(grid, 2)[0]
-
-            # Get manhatten_distance
-
-            distance_to_dragonstone = self.get_manhatten_distance(current_row,current_col, dragon_stone_location[0], dragon_stone_location[1])    
-            
-            return distance_to_dragonstone
-            
     
     
     def form_plan(self):
@@ -437,11 +376,8 @@ class Greedy(SearchStrategy):
             current_state = self.CURRENT.STATE
             if self.CURRENT.ACTION == "Attack":  
                 goal_reached = self.WORLD.goal_test(current_state) 
+            
             node_id+=1   
-            
-#            if node_id>10:
-#                break
-            
         return self.CURRENT
     
     
@@ -454,10 +390,7 @@ class Greedy(SearchStrategy):
         new_operators=PriorityQueue()
         for operator in possible_operators :
             action=operator[0]       
-            if self.H_MODE == "2":
-                h_value= self.heuristic_two(action,state) 
-            else:
-                h_value= self.heuristic_one(action,state)       
+            h_value = self.HEURISTICS.heuristic(action, state)      
             new_operator=(h_value,operator)
             new_operators.put(new_operator)  
           
@@ -465,45 +398,8 @@ class Greedy(SearchStrategy):
             
         result = []
         for o in new_operators.queue:
-            result.append(o[1])       
-        #result.reverse()   
+            result.append(o[1])        
         return result
-        
-        
-    
-    def update_position(self, current_row, current_col, action, grid):
-        if current_col < len(grid[0])-1: 
-            if action == "Right":                
-                current_col += 1
-        if current_col > 0:
-            if action == "Left":
-                current_col -= 1
-            
-        if current_row > 0:
-            if action == "Up":
-                current_row -= 1
-        if current_row < len(grid)-1:
-            if action == "Down":
-                current_row += 1
-        
-        return (current_row, current_col)
-    
-    
-    def locate_value(self, grid, value):
-        ww_positions = []
-        for i, row in enumerate(grid):
-            for j, cell in enumerate(row):
-                if cell == value:
-                    ww_positions.append((i,j))
-        return ww_positions
-    
-    
-    def get_manhatten_distance(self, x1, y1, x2, y2):
-        delta_x = abs(x1-x2)
-        delta_y = abs(y1-y2)
-        return delta_x + delta_y
-        
-   
 
 
 ##################################################################################################
@@ -511,14 +407,13 @@ class Greedy(SearchStrategy):
 
 # PrioQueue
 class AStar(SearchStrategy):
-    def __init__(self, world, heuristic="2"):
+    def __init__(self, world, heuristic_mode="2"):
         self.WORLD = world
         root = Node(-1,"Initial", None, 0, world.INITIAL_STATE)
         self.ROOT = root
         self.CURRENT = root
         self.CURR_COST = 1
-        self.GD = Greedy(world)
-        self.H_MODE = heuristic
+        self.HEURISTICS = Heuristics(heuristic_mode)
 
         # Should contain format (h+c , (action, parentID))
         self.ACTION_PRIO_QUEUE = PriorityQueue()
@@ -549,8 +444,6 @@ class AStar(SearchStrategy):
         parent_cost = self.PARENTS[parentID]["cost"]
         new_state = parent.STATE.get_new_state(next_action)
         
-        
-                
         # Update the priority_Queue with the new node's children & costs + heuristics
         possible_operators = self.WORLD.operators(new_state, ID)
         pq_entries = self.format_for_PQ(possible_operators, parent, parent_cost) # format it to (c+h, (action, parent_id))  
@@ -561,9 +454,8 @@ class AStar(SearchStrategy):
         # parent from self.PARENTS when remaining_children reaches 0. (We no more need it)
         self.PARENTS[parentID]["remaining_children"]-=1
         if self.PARENTS[parentID]["remaining_children"] == 0:
-                del self.PARENTS[parentID]
+            del self.PARENTS[parentID]
         
-
 
         # Update the self.CURRENT & add it as a new parent
         self.CURRENT = Node(ID, next_action, parent, parent.DEPTH+1, new_state)
@@ -580,13 +472,7 @@ class AStar(SearchStrategy):
         new_operators=[]
         for operator in possible_operators :
             action=operator[0]         
-
-            if self.H_MODE == "2":
-                h_value = self.GD.heuristic_two(action,state)
-            else:
-                h_value= self.GD.heuristic_one(action,state)
-
-                
+            h_value = self.HEURISTICS.heuristic(action, state)                
             self.CURR_COST = parent_cost + self.WORLD.COST_DIC[action]
             f_value = h_value + self.CURR_COST                    
 
