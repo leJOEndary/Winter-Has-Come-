@@ -21,7 +21,7 @@ import time
 # Controls #
 ############
 
-STRATEGY = "ID"
+STRATEGY = "AS"
 
 VISUALIZE = True
 
@@ -33,8 +33,8 @@ INPUT_GRID =[[1,0,1,3],
 
 # Will be used to generate a random grid if the RANDOMIZE_GRID = True
 RANDOMIZE_GRID = True 
-LENGTH = 4
-WIDTH = 4
+LENGTH = 6
+WIDTH = 5
 ######################################################
 ###############################
 
@@ -47,6 +47,7 @@ strategies_dic = {"DF":DepthFirst,
 
 # Generates a random grid of size MxN (min, 4x4)
 def genGrid():
+    DS = False
     if not RANDOMIZE_GRID:
         return INPUT_GRID
     else:       
@@ -55,7 +56,15 @@ def genGrid():
         for i  in range(LENGTH):
             row = []
             for j in range(WIDTH):
+                
                 cell = random.randint(0,3)
+                if cell == 2:
+                    if DS:
+                        cell=0
+                    else:
+                        DS = True
+                if i == LENGTH-1 and j == WIDTH-1:
+                    cell = 0
                 row.append(cell)
             print("                  ",row)
             grid.append(row)
