@@ -21,7 +21,7 @@ import time
 # Controls #
 ############
 
-STRATEGY = "AS"
+STRATEGY = "ID"
 
 VISUALIZE = True
 
@@ -32,7 +32,7 @@ INPUT_GRID =[[1,0,1,3],
              [2,0,0,0]]
 
 # Will be used to generate a random grid if the RANDOMIZE_GRID = True
-RANDOMIZE_GRID = False
+RANDOMIZE_GRID = True 
 LENGTH = 4
 WIDTH = 4
 ######################################################
@@ -87,18 +87,22 @@ def search(grid, strategy, visualize):
     print("Formulating winning plan...      ", end='')
     final_node = strategy_Object.form_plan()
     print("[Done]\n")
-    # Parsing node to Actions and Cost
-    representation_of_moves_to_goal = world.parse_action_sequence(final_node)
-    solution_cost = world.path_cost(final_node) 
     
-    # Visualize the winning plan
-    if visualize:
-        visualize_plan(final_node)
-    
-    return [representation_of_moves_to_goal,
-            solution_cost,
-            final_node.ID]
-
+    if final_node != None:
+        # Parsing node to Actions and Cost
+        representation_of_moves_to_goal = world.parse_action_sequence(final_node)
+        solution_cost = world.path_cost(final_node) 
+        
+        # Visualize the winning plan
+        if visualize:
+            visualize_plan(final_node)
+        
+        return [representation_of_moves_to_goal,
+                solution_cost,
+                final_node.ID]
+    else:
+        print("This problem has no Solution.")
+        return [None,None,None]
 
         
 # Visual representation of discovered solution applied to the grid 

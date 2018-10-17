@@ -79,7 +79,6 @@ class State():
             if grid[row][column] == 2:
                 inventory_curr = inventory_max
         
-        
         return State(grid, row, column, inventory_max, inventory_curr)
             
     # Returns different (GRID) object of the same value 
@@ -90,7 +89,6 @@ class State():
             for cell in row:
                 new_row.append(cell)
             new_grid.append(new_row)
-            
         return new_grid
 
     def __str__(self):        

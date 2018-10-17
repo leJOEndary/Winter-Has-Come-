@@ -75,7 +75,9 @@ class DepthFirst(SearchStrategy):
     def form_plan(self):
         node_id = 0
         goal_reached = False
-        while not goal_reached:   
+        while not goal_reached:
+            if len(self.ACTION_STACK) == 0:
+                return None
             self.create_node(node_id)
             current_state = self.CURRENT.STATE
             if self.CURRENT.ACTION == "Attack":  
@@ -143,6 +145,8 @@ class BreadthFirst(SearchStrategy):
           node_id = 0
           goal_reached = False
           while not goal_reached:
+              if self.ACTION_QUEUE.empty():
+                return None
               self.create_node(node_id)
               current_state = self.CURRENT.STATE
               goal_reached = self.WORLD.goal_test(current_state)
@@ -277,6 +281,8 @@ class UniformCost(SearchStrategy):
         node_id = 0
         goal_reached = False
         while not goal_reached:
+            if self.ACTION_PRIO_QUEUE.empty():
+                return None
             self.create_node(node_id)
             current_state = self.CURRENT.STATE
             if self.CURRENT.ACTION == "Attack":    
@@ -342,7 +348,9 @@ class Greedy(SearchStrategy):
     def form_plan(self):
         node_id = 0
         goal_reached = False
-        while not goal_reached:            
+        while not goal_reached:     
+            if len(self.ACTION_STACK)==0:
+                return None
             self.create_node(node_id)
             current_state = self.CURRENT.STATE
             if self.CURRENT.ACTION == "Attack":  
@@ -455,6 +463,8 @@ class AStar(SearchStrategy):
         node_id = 0
         goal_reached = False
         while not goal_reached:
+            if self.ACTION_PRIO_QUEUE.empty():
+                return None
             self.create_node(node_id)
             current_state = self.CURRENT.STATE
             if self.CURRENT.ACTION == "Attack":
