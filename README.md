@@ -38,10 +38,10 @@ pieces of dragonglass to kill all the white walkers.
 
 
 ## Wisdom-Levels / Agent-Strategies that will move Jon
-a) Breadth-first search.
-b) Depth-first search.
-c) Iterative deepening search.
-d) Uniform-cost search.
-e) Greedy with two heuristics.
-f) A∗ search with two admissible heuristics.
+* Breadth-first search.
+* Depth-first search.
+* Iterative deepening search.
+* Uniform-cost search.
+* Greedy with two heuristics.
+* A∗ search with two admissible heuristics.
 
