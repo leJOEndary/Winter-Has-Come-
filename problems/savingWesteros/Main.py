@@ -21,19 +21,20 @@ import time
 # Controls #
 ############
 
-STRATEGY = "AS"
+STRATEGY = "GD"
 
 VISUALIZE = True
 
 
-INPUT_GRID =[[1,0,1,3],
-             [0,3,0,1],
-             [3,0,1,3],
+INPUT_GRID =[[0,0,0,0],
+             [0,1,0,1],
+             [0,0,1,0],
              [2,0,0,0]]
 
+    
 # Will be used to generate a random grid if the RANDOMIZE_GRID = True
-RANDOMIZE_GRID = True 
-LENGTH = 6
+RANDOMIZE_GRID = True
+LENGTH = 5
 WIDTH = 5
 ######################################################
 ###############################
@@ -78,7 +79,7 @@ def genGrid():
 def search(grid, strategy, visualize):
     
     # Initializing the world using the Initial State
-    inventory = random.randint(1,5)
+    inventory = 1#random.randint(1,5)
     row = len(grid)-1 
     column = len(grid[0])-1  
     init_state = State(grid, row, column, inventory_curr=inventory, inventory_max=inventory)   
