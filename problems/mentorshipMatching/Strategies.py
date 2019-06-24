@@ -57,7 +57,7 @@ class DepthFirst(SearchStrategy):
         if not limit_not_reached: 
             while parent.ID != parent_id:
                 parent = parent.PARENT
-        new_state = parent.STATE.get_new_state(next_action)
+        new_state = parent.STATE.get_new_state(next_action, parent.DEPTH+1)
         if limit_not_reached:
             possible_operators = self.WORLD.operators(new_state, ID)
 
@@ -81,8 +81,7 @@ class DepthFirst(SearchStrategy):
                 return None
             self.create_node(node_id)
             current_state = self.CURRENT.STATE
-            if self.CURRENT.ACTION == "Attack":  
-                goal_reached = self.WORLD.goal_test(current_state) 
+            goal_reached = self.WORLD.goal_test(current_state) 
             node_id+=1 
         return self.CURRENT
     
@@ -121,7 +120,7 @@ class BreadthFirst(SearchStrategy):
           parent = self.PARENTS[parent_id]["node"]
 
           # Expand the state(node) and get the new list of possible operators of the next level
-          new_state = parent.STATE.get_new_state(next_action)
+          new_state = parent.STATE.get_new_state(next_action, parent.DEPTH+1)
          
           new_possible_operators_toQueue = self.WORLD.operators(new_state, ID)  # List of the form (action, id)
           # Queue the new possible operators
@@ -198,8 +197,7 @@ class IterativeDeepening(SearchStrategy):
                 self.create_node(node_id, depth_limit)
                 current_state = self.DF.CURRENT.STATE
 
-                if self.DF.CURRENT.ACTION == "Attack":
-                    goal_reached = self.WORLD.goal_test(current_state) 
+                goal_reached = self.WORLD.goal_test(current_state) 
             nodes_expanded += node_id
             depth_limit+=1
         self.DF.CURRENT.ID = nodes_expanded
@@ -256,7 +254,7 @@ class UniformCost(SearchStrategy):
 
         # getting parent & computing the new_state
         parent = self.PARENTS[parentID]["node"]
-        new_state = parent.STATE.get_new_state(next_action)
+        new_state = parent.STATE.get_new_state(next_action, parent.DEPTH+1)
     
         # Update the priority_Queue with the new node's children & costs
         possible_operators = self.WORLD.operators(new_state, ID)
@@ -286,8 +284,7 @@ class UniformCost(SearchStrategy):
                 return None
             self.create_node(node_id)
             current_state = self.CURRENT.STATE
-            if self.CURRENT.ACTION == "Attack":    
-                goal_reached = self.WORLD.goal_test(current_state)
+            goal_reached = self.WORLD.goal_test(current_state)
             node_id+=1      
         return self.CURRENT
     
@@ -337,7 +334,7 @@ class Greedy(SearchStrategy):
         while parent.ID != parentID:
             parent = parent.PARENT              
         current_state = parent.STATE   
-        new_state = current_state.get_new_state(next_action)        
+        new_state = current_state.get_new_state(next_action, parent.DEPTH+1)        
         possible_operators = self.WORLD.operators(new_state, ID)
         stack_entries = self.format_for_Stack(possible_operators,current_state)  
         self.ACTION_STACK.append(stack_entries[0])
@@ -354,8 +351,7 @@ class Greedy(SearchStrategy):
                 return None
             self.create_node(node_id)
             current_state = self.CURRENT.STATE
-            if self.CURRENT.ACTION == "Attack":  
-                goal_reached = self.WORLD.goal_test(current_state)        
+            goal_reached = self.WORLD.goal_test(current_state)        
             node_id+=1   
         
         return self.CURRENT
@@ -385,13 +381,14 @@ class Greedy(SearchStrategy):
 
 # PrioQueue
 class AStar(SearchStrategy):
-    def __init__(self, world, heuristic_mode="2"):
+    def __init__(self, world, init_state, heuristic_mode="euclidean_avg_dist"):
         self.WORLD = world
-        root = Node(-1,"Initial", None, 0, world.INITIAL_STATE)
+        self.INITIAL_STATE= init_state
+        root = Node(-1,"Initial", None, 0, init_state)
         self.ROOT = root
         self.CURRENT = root
-        self.CURR_COST = 1
-        self.HEURISTICS = Heuristics(heuristic_mode)
+        self.CURR_COST = 0
+        self.HEURISTICS = Heuristics(heuristic_mode, world)
         
         # Should contain format (h+c , (action, parentID))
         self.ACTION_PRIO_QUEUE = PriorityQueue()
@@ -409,6 +406,7 @@ class AStar(SearchStrategy):
                     }
         # Initialize the PRIORITY_QUEUE by filling it with the initially available actions
         pq_entries = self.format_for_PQ(possible_operators, self.CURRENT,0)
+        # print("This pq entries: ", pq_entries)
         for e in pq_entries:
             self.ACTION_PRIO_QUEUE.put(e)
 
@@ -420,14 +418,14 @@ class AStar(SearchStrategy):
         next_action, parentID = data
         parent = self.PARENTS[parentID]["node"]
         parent_cost = self.PARENTS[parentID]["cost"]
-        new_state = parent.STATE.get_new_state(next_action)
+        new_state = parent.STATE.get_new_state(next_action, parent.DEPTH+1)
         
         # Update the priority_Queue with the new node's children & costs + heuristics
         possible_operators = self.WORLD.operators(new_state, ID)
         pq_entries = self.format_for_PQ(possible_operators, parent, parent_cost) # format it to (c+h, (action, parent_id))  
         for e in pq_entries:
-            self.ACTION_PRIO_QUEUE.put(e) 
-                
+            self.ACTION_PRIO_QUEUE.put(e)   
+        print(pq_entries)  
         # To save memory, Decrement remaining_children & remove 
         # parent from self.PARENTS when remaining_children reaches 0. (We no more need it)
         self.PARENTS[parentID]["remaining_children"]-=1
@@ -444,17 +442,23 @@ class AStar(SearchStrategy):
 
 
 
-    def format_for_PQ(self,possible_operators, parent, parent_cost):
+    def format_for_PQ(self, possible_operators, parent, parent_cost):
         state = parent.STATE
         new_operators=[]
         for operator in possible_operators :
             action=operator[0]         
-            h_value = self.HEURISTICS.heuristic(action, state)                
-            self.CURR_COST = parent_cost + self.WORLD.COST_DIC[action]
-            f_value = h_value + self.CURR_COST                    
-            new_operator=(f_value,operator)
+            h_value = self.HEURISTICS.heuristic(action, parent)     
+            mentor = self.WORLD.MENTORS[parent.DEPTH-1]     
+            mentor_vec = self.WORLD.MENTOR_SKILL_VECTORS[mentor]
+            mentee_vec = self.WORLD.MENTEE_SKILL_VECTORS[action]
+            current_cost = self.WORLD.euclidean(mentee_vec, mentor_vec)
+            self.CURR_COST = parent_cost + current_cost
+            f_value = (h_value + self.CURR_COST)* -1
+            # print(parent.STATE.REMAINING_MENTEES)   
+            #print("Current cost", h_value, operator)      
+            new_operator=(f_value, operator)
             new_operators.append(new_operator)
-
+        #print(new_operators)
         return new_operators
 
 
@@ -468,7 +472,6 @@ class AStar(SearchStrategy):
                 return None
             self.create_node(node_id)
             current_state = self.CURRENT.STATE
-            if self.CURRENT.ACTION == "Attack":
-                goal_reached = self.WORLD.goal_test(current_state)        
+            goal_reached = self.WORLD.goal_test(self.CURRENT.DEPTH)        
             node_id+=1           
         return self.CURRENT

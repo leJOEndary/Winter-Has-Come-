@@ -8,7 +8,7 @@ Created on Mon Oct  1 16:47:57 2018
 class Node():
     
     # This is the node constructor.
-    # Action is a string that indicated the type of the node.
+    # Action is the Mentee.
     # Depth is the depth of this node
     # Parent is the parent node
     # State is the State of the game at this node
