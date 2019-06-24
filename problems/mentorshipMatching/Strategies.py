@@ -8,6 +8,7 @@ import abc
 from Node import Node
 from queue import Queue, PriorityQueue
 from random import shuffle
+
 from State import State
 from Heuristics import Heuristics
 

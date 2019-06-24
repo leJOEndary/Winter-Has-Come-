@@ -21,20 +21,21 @@ import time
 # Controls #
 ############
 
-STRATEGY = "ID"
+STRATEGY = "GD"
 
 VISUALIZE = True
 
 
-INPUT_GRID =[[1,0,1,3],
-             [0,3,0,1],
-             [3,0,1,3],
+INPUT_GRID =[[0,0,0,0],
+             [0,1,0,1],
+             [0,0,1,0],
              [2,0,0,0]]
 
+    
 # Will be used to generate a random grid if the RANDOMIZE_GRID = True
-RANDOMIZE_GRID = True 
-LENGTH = 4
-WIDTH = 4
+RANDOMIZE_GRID = True
+LENGTH = 5
+WIDTH = 5
 ######################################################
 ###############################
 
@@ -47,6 +48,7 @@ strategies_dic = {"DF":DepthFirst,
 
 # Generates a random grid of size MxN (min, 4x4)
 def genGrid():
+    DS = False
     if not RANDOMIZE_GRID:
         return INPUT_GRID
     else:       
@@ -55,7 +57,15 @@ def genGrid():
         for i  in range(LENGTH):
             row = []
             for j in range(WIDTH):
+                
                 cell = random.randint(0,3)
+                if cell == 2:
+                    if DS:
+                        cell=0
+                    else:
+                        DS = True
+                if i == LENGTH-1 and j == WIDTH-1:
+                    cell = 0
                 row.append(cell)
             print("                  ",row)
             grid.append(row)
@@ -69,7 +79,7 @@ def genGrid():
 def search(grid, strategy, visualize):
     
     # Initializing the world using the Initial State
-    inventory = random.randint(1,5)
+    inventory = 1#random.randint(1,5)
     row = len(grid)-1 
     column = len(grid[0])-1  
     init_state = State(grid, row, column, inventory_curr=inventory, inventory_max=inventory)   
