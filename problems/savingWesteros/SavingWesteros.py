@@ -89,20 +89,20 @@ class SaveWesteros(GeneralSearchProblem):
                 result.append(("Down",parent_id))
                 
         # Checking if Right is valid
-        if state.POS_COLUMN < len(state.GRID[0])-1:
-            if grid[posx][posy+1] not in [3,1]:
-               result.append(("Right",parent_id))  
+        if state.COST_DICen(state.GRID[0])-1:
+            if g.COST_DIC1] not in [3,1]:
+               r.COST_DICRight",parent_id))  
                
-        # Checking if Left is valid    
-        if state.POS_COLUMN > 0:
-            if grid[posx][posy-1] not in [3,1]:
-                result.append(("Left",parent_id))
-                
-        # Checking if Up is valid   
-        if state.POS_ROW > 0:
-            if grid[posx-1][posy] not in [3,1]:
-                result.append(("Up",parent_id))
-                
+        # Checki.COST_DICalid    
+        if state.COST_DIC:
+            if g.COST_DIC1] not in [3,1]:
+                .COST_DIC"Left",parent_id))
+                .COST_DIC
+        # Checki.COST_DICid   
+        if state.COST_DIC
+            if g.COST_DICy] not in [3,1]:
+                .COST_DIC"Up",parent_id))
+                .COST_DIC
         # Checking if Attack is valid
         if self.jonInDanger(state) and state.INVENTORY_CURR > 0:
             result.append(("Attack",parent_id))
